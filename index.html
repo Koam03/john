@@ -72,103 +72,111 @@
     </section>
 
     <script>
+        // Select the gallery container
         const gallery = document.querySelector('.gallery');
-
-        // List of possible image extensions
+    
+        // Define possible image and video extensions
         const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
-
+        const videoExtensions = ['mp4', 'webm', 'ogg'];
+    
         /**
-         * Attempts to load an image with multiple extensions from the Assets/Images directory.
+         * Attempts to load an image with multiple extensions from the root directory.
          * @param {number} number - The image number.
          * @param {number} attempt - Current attempt index.
-         * @param {HTMLElement} img - The image element.
+         * @param {HTMLImageElement} img - The image element.
          */
         function tryLoadImage(number, attempt, img) {
             if (attempt >= imageExtensions.length) {
-                // If all attempts fail, display a placeholder or an error message
-                img.src = '/placeholder.png'; // Ensure you have a placeholder image in Assets/Images
+                // If all attempts fail, use the placeholder image
+                img.src = '/placeholder.png'; // Ensure placeholder.png is at the root
                 img.alt = `Image ${number} not found`;
                 return;
             }
-
+    
             const extension = imageExtensions[attempt];
             img.src = `/${number}.${extension}`;
-
+    
             img.onerror = () => {
                 tryLoadImage(number, attempt + 1, img);
             };
         }
-
+    
         /**
-         * Attempts to load a video with multiple extensions from the Assets/Videos directory.
+         * Attempts to load a video with multiple extensions from the root directory.
          * @param {number} number - The video number.
          * @param {number} attempt - Current attempt index.
-         * @param {HTMLElement} video - The video element.
+         * @param {HTMLVideoElement} video - The video element.
+         * @param {HTMLElement} container - The container div for the video.
          */
-        function tryLoadVideo(number, attempt, video, div) {
-            const videoExtensions = ['mp4', 'webm', 'ogg'];
-
+        function tryLoadVideo(number, attempt, video, container) {
             if (attempt >= videoExtensions.length) {
-                // If all attempts fail, display a message or hide the video element
-                div.textContent = `Video ${number} not found`;
+                // If all attempts fail, display an error message
+                container.textContent = `Video ${number} not found`;
                 return;
             }
-
+    
             const extension = videoExtensions[attempt];
             video.src = `/${number}.${extension}`;
-
-            // Listen for metadata loading to confirm if the video exists
+    
+            // Listen for successful metadata loading
             video.onloadedmetadata = () => {
                 // Video loaded successfully; no further action needed
             };
-
+    
             video.onerror = () => {
-                tryLoadVideo(number, attempt + 1, video, div);
+                tryLoadVideo(number, attempt + 1, video, container);
             };
         }
-
-        // Function to create and append an image element
+    
+        /**
+         * Creates and appends an image element to the gallery.
+         * @param {number} number - The image number.
+         */
         function addImage(number) {
-            const div = document.createElement('div');
-            div.classList.add('gallery-item');
-
+            const container = document.createElement('div');
+            container.classList.add('gallery-item');
+    
             const img = document.createElement('img');
             img.alt = `Image ${number}`;
-            img.loading = 'lazy'; // Improve performance with lazy loading
-
-            // Start attempting to load the image with the first extension
+            img.loading = 'lazy'; // Enable lazy loading for better performance
+    
+            // Start loading the image with the first extension
             tryLoadImage(number, 0, img);
-
-            div.appendChild(img);
-            gallery.appendChild(div);
+    
+            container.appendChild(img);
+            gallery.appendChild(container);
         }
-
-        // Function to create and append a video element
+    
+        /**
+         * Creates and appends a video element to the gallery.
+         * @param {number} number - The video number.
+         */
         function addVideo(number) {
-            const div = document.createElement('div');
-            div.classList.add('gallery-item');
-
+            const container = document.createElement('div');
+            container.classList.add('gallery-item');
+    
             const video = document.createElement('video');
             video.controls = true;
             video.preload = 'metadata';
-            video.loading = 'lazy'; // Note: Not all browsers support lazy loading for videos
-
-            // Start attempting to load the video with the first extension
-            tryLoadVideo(number, 0, video, div);
-
-            div.appendChild(video);
-            gallery.appendChild(div);
+            video.loading = 'lazy'; // Note: Lazy loading for videos may not be supported in all browsers
+    
+            // Start loading the video with the first extension
+            tryLoadVideo(number, 0, video, container);
+    
+            container.appendChild(video);
+            gallery.appendChild(container);
         }
-
-        // Insert assets 1 through 142
+    
+        // Loop through asset numbers 1 to 142
         for (let i = 1; i <= 142; i++) {
-            // Skip numbers 6 and 36 for videos
+            // Designate specific numbers for videos
             if (i === 6 || i === 36) {
                 addVideo(i);
             } else {
                 addImage(i);
             }
         }
-    </script>   
+    </script>
+    
 </body>
 </html>
