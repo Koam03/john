@@ -1,182 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asset Gallery</title>
-    <style>
-        /* Reset some default styles */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            padding: 20px;
-        }
-
-        .gallery {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        .gallery-item {
-            background-color: grey;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            overflow: hidden;
-            /* Adjust the width based on screen size */
-            width: calc(100% / 2 - 20px); /* Default to 2 columns */
-        }
-
-        .gallery-item img,
-        .gallery-item video {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        /* Medium devices (tablets) */
-        @media (min-width: 600px) {
-            .gallery-item {
-                width: calc(100% / 3 - 20px); /* 3 columns */
-            }
-        }
-
-        /* Large devices (desktops) */
-        @media (min-width: 900px) {
-            .gallery-item {
-                width: calc(100% / 4 - 20px); /* 4 columns */
-            }
-        }
-
-        /* Extra large devices */
-        @media (min-width: 1200px) {
-            .gallery-item {
-                width: calc(100% / 5 - 20px); /* 5 columns */
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Your Asset Gallery</title>
+  <!-- Bootstrap CSS -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-ENjdO4Dr2bkBIFxQpeo5m4qhH0LkNj9f0YIh3EGcGxSBQeI3eGf6ttO2j3M2VFl6"
+    crossorigin="anonymous"
+  >
+  <!-- Custom CSS -->
+  <style>
+    body {
+      padding-top: 50px;
+      padding-bottom: 50px;
+      background-color: #f8f9fa;
+    }
+    .asset-title {
+      margin-bottom: 40px;
+      text-align: center;
+      color: #343a40;
+    }
+    .gallery-section {
+      margin-bottom: 60px;
+    }
+    .gallery-section h2 {
+      margin-bottom: 30px;
+      color: #495057;
+    }
+    .image-thumbnail, .video-thumbnail {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    .image-thumbnail img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .video-thumbnail video {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    /* Optional: Hover effect */
+    .image-thumbnail img:hover, .video-thumbnail video:hover {
+      transform: scale(1.05);
+      transition: transform 0.3s;
+    }
+  </style>
 </head>
 <body>
 
-    <h1 style="text-align: center; margin-bottom: 20px;">Asset Gallery</h1>
-
-    <section class="gallery">
-        <!-- Assets will be inserted here by JavaScript -->
+  <div class="container">
+    <h1 class="asset-title">Asset Gallery</h1>
+    
+    <!-- Images Section -->
+    <section id="images-section" class="gallery-section">
+      <h2>Images</h2>
+      <div class="row" id="images-container">
+        <!-- Images will be injected here by JavaScript -->
+      </div>
     </section>
+    
+    <!-- Videos Section -->
+    <section id="videos-section" class="gallery-section">
+      <h2>Videos</h2>
+      <div class="row" id="videos-container">
+        <!-- Videos will be injected here by JavaScript -->
+      </div>
+    </section>
+  </div>
 
-    <script>
-        // Select the gallery container
-        const gallery = document.querySelector('.gallery');
-    
-        // Define possible image and video extensions
-        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
-        const videoExtensions = ['mp4', 'webm', 'ogg'];
-    
-        /**
-         * Attempts to load an image with multiple extensions from the root directory.
-         * @param {number} number - The image number.
-         * @param {number} attempt - Current attempt index.
-         * @param {HTMLImageElement} img - The image element.
-         */
-        function tryLoadImage(number, attempt, img) {
-            if (attempt >= imageExtensions.length) {
-                // If all attempts fail, use the placeholder image
-                img.src = '/placeholder.png'; // Ensure placeholder.png is at the root
-                img.alt = `Image ${number} not found`;
-                return;
-            }
-    
-            const extension = imageExtensions[attempt];
-            img.src = `/${number}.${extension}`;
-    
-            img.onerror = () => {
-                tryLoadImage(number, attempt + 1, img);
-            };
-        }
-    
-        /**
-         * Attempts to load a video with multiple extensions from the root directory.
-         * @param {number} number - The video number.
-         * @param {number} attempt - Current attempt index.
-         * @param {HTMLVideoElement} video - The video element.
-         * @param {HTMLElement} container - The container div for the video.
-         */
-        function tryLoadVideo(number, attempt, video, container) {
-            if (attempt >= videoExtensions.length) {
-                // If all attempts fail, display an error message
-                container.textContent = `Video ${number} not found`;
-                return;
-            }
-    
-            const extension = videoExtensions[attempt];
-            video.src = `/${number}.${extension}`;
-    
-            // Listen for successful metadata loading
-            video.onloadedmetadata = () => {
-                // Video loaded successfully; no further action needed
-            };
-    
-            video.onerror = () => {
-                tryLoadVideo(number, attempt + 1, video, container);
-            };
-        }
-    
-        /**
-         * Creates and appends an image element to the gallery.
-         * @param {number} number - The image number.
-         */
-        function addImage(number) {
-            const container = document.createElement('div');
-            container.classList.add('gallery-item');
-    
-            const img = document.createElement('img');
-            img.alt = `Image ${number}`;
-            img.loading = 'lazy'; // Enable lazy loading for better performance
-    
-            // Start loading the image with the first extension
-            tryLoadImage(number, 0, img);
-    
-            container.appendChild(img);
-            gallery.appendChild(container);
-        }
-    
-        /**
-         * Creates and appends a video element to the gallery.
-         * @param {number} number - The video number.
-         */
-        function addVideo(number) {
-            const container = document.createElement('div');
-            container.classList.add('gallery-item');
-    
-            const video = document.createElement('video');
-            video.controls = true;
-            video.preload = 'metadata';
-            video.loading = 'lazy'; // Note: Lazy loading for videos may not be supported in all browsers
-    
-            // Start loading the video with the first extension
-            tryLoadVideo(number, 0, video, container);
-    
-            container.appendChild(video);
-            gallery.appendChild(container);
-        }
-    
-        // Loop through asset numbers 1 to 142
-        for (let i = 1; i <= 142; i++) {
-            // Designate specific numbers for videos
-            if (i === 6 || i === 36) {
-                addVideo(i);
-            } else {
-                addImage(i);
-            }
-        }
-    </script>
-    
+  <!-- Bootstrap JS and dependencies (Popper.js) -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+In3RYE39JzQF0h+8abtTE1Pi6jizo"
+    crossorigin="anonymous"
+  ></script>
+  
+  <!-- Custom JavaScript -->
+  <script>
+    // Base URL pointing to the root level where assets are hosted
+    const BASE_URL = 'https://www.mainwebsite.com/'; // Replace with your actual domain
+
+    // Image Extensions
+    const imageFormats = ['jpg', 'png', 'webp']; // Add other formats if necessary
+
+    // Video Extensions
+    const videoFormats = ['mp4', 'webm', 'ogg']; // Add other formats if necessary
+
+    // Function to create image elements
+    function loadImages() {
+      const imagesContainer = document.getElementById('images-container');
+      for (let i = 1; i <= 142; i++) {
+        const col = document.createElement('div');
+        col.className = 'col-6 col-sm-4 col-md-3 image-thumbnail';
+        
+        const img = document.createElement('img');
+        // Assuming assets are directly under the root, e.g., https://www.mainwebsite.com/1.jpg
+        // Use the first available format; adjust logic if needed
+        img.src = `${BASE_URL}${i}.${imageFormats[0]}`;
+        img.alt = `Image ${i}`;
+        img.loading = 'lazy'; // Enables lazy loading for better performance
+        
+        col.appendChild(img);
+        imagesContainer.appendChild(col);
+      }
+    }
+
+    // Function to create video elements
+    function loadVideos() {
+      const videosContainer = document.getElementById('videos-container');
+      const videoNumbers = [6, 36];
+      
+      videoNumbers.forEach(number => {
+        const col = document.createElement('div');
+        col.className = 'col-12 col-md-6 video-thumbnail';
+        
+        const video = document.createElement('video');
+        video.controls = true;
+        video.className = 'rounded';
+        video.loading = 'lazy'; // Note: `loading` attribute for video is not widely supported yet
+
+        // Add multiple sources for different formats
+        videoFormats.forEach(format => {
+          const source = document.createElement('source');
+          source.src = `${BASE_URL}${number}.${format}`;
+          source.type = `video/${format}`;
+          video.appendChild(source);
+        });
+        
+        // Fallback message
+        video.innerHTML += 'Your browser does not support the video tag.';
+        
+        col.appendChild(video);
+        videosContainer.appendChild(col);
+      });
+    }
+
+    // Initialize the gallery on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      loadImages();
+      loadVideos();
+    });
+  </script>
+  
 </body>
 </html>
