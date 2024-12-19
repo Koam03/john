@@ -1,179 +1,170 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Dynamic Asset Gallery</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Gallery</title>
     <style>
-        /* Enhanced CSS as provided above */
-        #gallery {
+        /* Reset some default styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+
+        .gallery {
             display: flex;
             flex-wrap: wrap;
-            gap: 16px;
+            gap: 10px;
             justify-content: center;
         }
 
         .gallery-item {
+            background-color: grey;
             border: 1px solid #ddd;
-            padding: 8px;
             border-radius: 4px;
-            max-width: 200px;
-            text-align: center;
+            overflow: hidden;
+            /* Adjust the width based on screen size */
+            width: calc(100% / 2 - 20px); /* Default to 2 columns */
         }
 
         .gallery-item img,
-        .gallery-item video,
-        .gallery-item audio {
-            max-width: 100%;
+        .gallery-item video {
+            width: 100%;
             height: auto;
             display: block;
-            margin: 0 auto 8px;
         }
 
-        .gallery-item a {
-            display: block;
-            color: #0066cc;
-            text-decoration: none;
-            word-break: break-all;
+        /* Medium devices (tablets) */
+        @media (min-width: 600px) {
+            .gallery-item {
+                width: calc(100% / 3 - 20px); /* 3 columns */
+            }
         }
 
-        .gallery-item a:hover {
-            text-decoration: underline;
+        /* Large devices (desktops) */
+        @media (min-width: 900px) {
+            .gallery-item {
+                width: calc(100% / 4 - 20px); /* 4 columns */
+            }
+        }
+
+        /* Extra large devices */
+        @media (min-width: 1200px) {
+            .gallery-item {
+                width: calc(100% / 5 - 20px); /* 5 columns */
+            }
         }
     </style>
 </head>
 <body>
-    <div id="gallery"></div>
+
+    <h1 style="text-align: center; margin-bottom: 20px;">Asset Gallery</h1>
+
+    <section class="gallery">
+        <!-- Assets will be inserted here by JavaScript -->
+    </section>
 
     <script>
-        // Define allowed file extensions categorized by type
-        const allowedExtensions = {
-            image: ['jpeg', 'png', 'gif', 'tiff', 'bmp', 'webp', 'heic', 'heif', 'dng', 'jpg'],
-            vector: ['ai', 'eps', 'svg', 'pdf'],
-            video: ['avi', 'wmv', 'mp4', 'flv', 'webm', 'mkv', 'avchd', 'mov', 'mpeg', 'mpg'],
-            audio: ['mp3', 'aac', 'ogg', 'flac', 'wav', 'dsd', 'pcm', 'aiff', 'mp2', 'm4a', 'aif', 'aifc'],
-            graphics: ['psd', 'tif', 'psdt'],
-            templates: ['ait', 'indt'],
-            animation: ['fla', 'xfl', 'oam'],
-            brushes: ['abr', 'psb', 'acb'],
-        };
+        const gallery = document.querySelector('.gallery');
 
-        // Create a reverse lookup map for extensions to types
-        const extensionToTypeMap = {};
-        for (const [type, extensions] of Object.entries(allowedExtensions)) {
-            extensions.forEach(ext => {
-                extensionToTypeMap[ext] = type;
-            });
-        }
+        // List of possible image extensions
+        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
 
-        function getFileExtension(filename) {
-            const parts = filename.split('.');
-            return parts.length > 1 ? parts.pop().toLowerCase() : '';
-        }
-
-        function getAssetType(extension) {
-            return extensionToTypeMap[extension] || null;
-        }
-
-        function getFileName(path) {
-            return path.split('/').pop();
-        }
-
-        const gallery = document.getElementById('gallery');
-
-        function loadAssets(categorizedAssets) {
-            for (const [type, assets] of Object.entries(categorizedAssets)) {
-                assets.forEach(asset => {
-                    const item = document.createElement('div');
-                    item.classList.add('gallery-item');
-
-                    const extension = getFileExtension(asset);
-                    const assetType = getAssetType(extension);
-
-                    if (!assetType) {
-                        console.warn(`Unsupported file type: ${asset}`);
-                        return;
-                    }
-
-                    switch(assetType) {
-                        case 'image':
-                        case 'vector':
-                        case 'graphics':
-                            const img = document.createElement('img');
-                            img.src = `assets/${asset}`;
-                            img.alt = getFileName(asset);
-                            img.loading = 'lazy';
-                            img.onerror = () => {
-                                console.error(`Failed to load image: ${asset}`);
-                                img.src = 'assets/images/placeholder.png';
-                            };
-                            item.appendChild(img);
-                            break;
-
-                        case 'video':
-                            const video = document.createElement('video');
-                            video.src = `assets/${asset}`;
-                            video.controls = true;
-                            video.loading = 'lazy';
-                            video.width = 180;
-                            video.onerror = () => {
-                                console.error(`Failed to load video: ${asset}`);
-                                // Optionally, add a fallback or remove the video element
-                            };
-                            item.appendChild(video);
-                            break;
-
-                        case 'audio':
-                            const audio = document.createElement('audio');
-                            audio.src = `assets/${asset}`;
-                            audio.controls = true;
-                            audio.loading = 'lazy';
-                            audio.onerror = () => {
-                                console.error(`Failed to load audio: ${asset}`);
-                                // Optionally, add a fallback or remove the audio element
-                            };
-                            item.appendChild(audio);
-                            break;
-
-                        case 'document':
-                        case 'templates':
-                        case 'animation':
-                        case 'brushes':
-                            const link = document.createElement('a');
-                            link.href = `assets/${asset}`;
-                            link.textContent = getFileName(asset);
-                            link.target = '_blank';
-                            item.appendChild(link);
-                            break;
-
-                        default:
-                            console.warn(`Unhandled asset type: ${assetType} for file: ${asset}`);
-                    }
-
-                    gallery.appendChild(item);
-                });
+        /**
+         * Attempts to load an image with multiple extensions.
+         * @param {number} number - The image number.
+         * @param {number} attempt - Current attempt index.
+         * @param {HTMLElement} img - The image element.
+         */
+        function tryLoadImage(number, attempt, img) {
+            if (attempt >= imageExtensions.length) {
+                // If all attempts fail, display a placeholder or an error message
+                img.src = 'placeholder.png'; // Ensure you have a placeholder image
+                img.alt = `Image ${number} not found`;
+                return;
             }
+
+            const extension = imageExtensions[attempt];
+            img.src = `Images/${number}.${extension}`;
+
+            img.onerror = () => {
+                tryLoadImage(number, attempt + 1, img);
+            };
         }
 
-        // Fetch the asset list from the JSON file
-        async function fetchAssets() {
-            try {
-                const response = await fetch('assets/assets.json');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
+        // Function to create and append an image element
+        function addImage(number) {
+            const div = document.createElement('div');
+            div.classList.add('gallery-item');
+
+            const img = document.createElement('img');
+            img.alt = `Image ${number}`;
+            img.loading = 'lazy'; // Improve performance with lazy loading
+
+            // Start attempting to load the image with the first extension
+            tryLoadImage(number, 0, img);
+
+            div.appendChild(img);
+            gallery.appendChild(div);
+        }
+
+        // Function to create and append a video element
+        function addVideo(number) {
+            const div = document.createElement('div');
+            div.classList.add('gallery-item');
+
+            const video = document.createElement('video');
+            video.controls = true;
+            video.preload = 'metadata';
+
+            // List of possible video extensions
+            const videoExtensions = ['mp4', 'webm', 'ogg'];
+            let videoLoaded = false;
+
+            // Function to try loading video with different extensions
+            function tryLoadVideo(attempt) {
+                if (attempt >= videoExtensions.length) {
+                    // If all attempts fail, display a message or hide the video element
+                    div.textContent = `Video ${number} not found`;
+                    return;
                 }
-                const categorizedAssets = await response.json();
-                return categorizedAssets;
-            } catch (error) {
-                console.error('Error fetching assets:', error);
-                return {};
+
+                const extension = videoExtensions[attempt];
+                video.src = `Images/${number}.${extension}`;
+
+                // Listen for metadata loading to confirm if the video exists
+                video.onloadedmetadata = () => {
+                    videoLoaded = true;
+                };
+
+                video.onerror = () => {
+                    tryLoadVideo(attempt + 1);
+                };
             }
+
+            tryLoadVideo(0);
+
+            div.appendChild(video);
+            gallery.appendChild(div);
         }
 
-        // Initialize the gallery once the DOM is fully loaded
-        document.addEventListener('DOMContentLoaded', async () => {
-            const assets = await fetchAssets();
-            loadAssets(assets);
-        });
+        // Insert images 1 through 142
+        for (let i = 1; i <= 142; i++) {
+            // Skip numbers 6 and 36 for videos
+            if (i === 6 || i === 36) {
+                addVideo(i);
+            } else {
+                addImage(i);
+            }
+        }
     </script>
 </body>
 </html>
