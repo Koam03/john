@@ -1,171 +1,202 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asset Gallery</title>
+    <title>Dynamic Asset Gallery</title>
     <style>
-        /* Reset some default styles */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            padding: 20px;
+            background-color: #f0f0f0;
         }
-
         .gallery {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 15px;
+            padding: 20px;
             justify-content: center;
         }
-
         .gallery-item {
-            background-color: grey;
+            flex: 1 0 21%; /* Adjust as needed for responsiveness */
+            box-sizing: border-box;
+            background-color: #fff;
             border: 1px solid #ddd;
-            border-radius: 4px;
-            overflow: hidden;
-            /* Adjust the width based on screen size */
-            width: calc(100% / 2 - 20px); /* Default to 2 columns */
+            padding: 10px;
+            border-radius: 5px;
+            position: relative;
         }
-
         .gallery-item img,
-        .gallery-item video {
+        .gallery-item video,
+        .gallery-item audio,
+        .gallery-item iframe {
             width: 100%;
             height: auto;
             display: block;
+            border-radius: 3px;
         }
-
-        /* Medium devices (tablets) */
-        @media (min-width: 600px) {
+        .placeholder {
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            background-color: #ccc;
+            position: relative;
+            border-radius: 3px;
+        }
+        .placeholder::after {
+            content: attr(data-alt);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #666;
+            font-size: 1em;
+            text-align: center;
+        }
+        @media (max-width: 1200px) {
             .gallery-item {
-                width: calc(100% / 3 - 20px); /* 3 columns */
+                flex: 1 0 28%;
             }
         }
-
-        /* Large devices (desktops) */
-        @media (min-width: 900px) {
+        @media (max-width: 800px) {
             .gallery-item {
-                width: calc(100% / 4 - 20px); /* 4 columns */
+                flex: 1 0 45%;
             }
         }
-
-        /* Extra large devices */
-        @media (min-width: 1200px) {
+        @media (max-width: 500px) {
             .gallery-item {
-                width: calc(100% / 5 - 20px); /* 5 columns */
+                flex: 1 0 90%;
             }
         }
     </style>
 </head>
 <body>
-
-    <h1 style="text-align: center; margin-bottom: 20px;">Asset Gallery</h1>
-
-    <section class="gallery">
-        <!-- Assets will be inserted here by JavaScript -->
-    </section>
+    <h1 style="text-align:center; padding-top:20px;">Dynamic Asset Gallery</h1>
+    <div class="gallery"></div>
 
     <script>
         const gallery = document.querySelector('.gallery');
 
-        // List of possible image extensions
-        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
+        // Define supported asset types with their possible extensions
+        const assetTypes = {
+            image: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'ai', 'svg'],
+            video: ['mp4', 'webm', 'ogg', 'mov'],
+            audio: ['mp3', 'wav', 'aac'],
+            document: ['pdf', 'doc', 'docx', 'txt'],
+            // Add more asset types and their extensions as needed
+        };
 
         /**
-         * Attempts to load an image with multiple extensions.
-         * @param {number} number - The image number.
-         * @param {number} attempt - Current attempt index.
-         * @param {HTMLElement} img - The image element.
+         * Capitalizes the first letter of a string.
+         * @param {string} string - The string to capitalize.
+         * @returns {string} - The capitalized string.
          */
-        function tryLoadImage(number, attempt, img) {
-            if (attempt >= imageExtensions.length) {
-                // If all attempts fail, display a placeholder or an error message
-                img.src = 'placeholder.png'; // Ensure you have a placeholder image
-                img.alt = `Image ${number} not found`;
+        function capitalizeFirstLetter(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        /**
+         * Determines the asset type based on its file extension.
+         * @param {string} filename - The name of the file.
+         * @returns {string|null} - The asset type or null if unsupported.
+         */
+        function getAssetType(filename) {
+            const extension = filename.split('.').pop().toLowerCase();
+            for (const [type, extensions] of Object.entries(assetTypes)) {
+                if (extensions.includes(extension)) {
+                    return type;
+                }
+            }
+            return null;
+        }
+
+        /**
+         * Creates and appends an asset element to the gallery.
+         * @param {string} filename - The name of the asset file.
+         */
+        function addAsset(filename) {
+            const assetType = getAssetType(filename);
+            if (!assetType) {
+                console.warn(`Unsupported asset type for file: ${filename}`);
                 return;
             }
 
-            const extension = imageExtensions[attempt];
-            img.src = `Images/${number}.${extension}`;
-
-            img.onerror = () => {
-                tryLoadImage(number, attempt + 1, img);
-            };
-        }
-
-        // Function to create and append an image element
-        function addImage(number) {
             const div = document.createElement('div');
             div.classList.add('gallery-item');
 
-            const img = document.createElement('img');
-            img.alt = `Image ${number}`;
-            img.loading = 'lazy'; // Improve performance with lazy loading
+            let element;
 
-            // Start attempting to load the image with the first extension
-            tryLoadImage(number, 0, img);
-
-            div.appendChild(img);
-            gallery.appendChild(div);
-        }
-
-        // Function to create and append a video element
-        function addVideo(number) {
-            const div = document.createElement('div');
-            div.classList.add('gallery-item');
-
-            const video = document.createElement('video');
-            video.controls = true;
-            video.preload = 'metadata';
-
-            // List of possible video extensions
-            const videoExtensions = ['mp4', 'webm', 'ogg'];
-            let videoLoaded = false;
-
-            // Function to try loading video with different extensions
-            function tryLoadVideo(attempt) {
-                if (attempt >= videoExtensions.length) {
-                    // If all attempts fail, display a message or hide the video element
-                    div.textContent = `Video ${number} not found`;
+            switch (assetType) {
+                case 'image':
+                    element = document.createElement('img');
+                    element.alt = filename;
+                    element.loading = 'lazy'; // Improve performance with lazy loading
+                    break;
+                case 'video':
+                    element = document.createElement('video');
+                    element.controls = true;
+                    element.preload = 'metadata';
+                    break;
+                case 'audio':
+                    element = document.createElement('audio');
+                    element.controls = true;
+                    element.preload = 'metadata';
+                    break;
+                case 'document':
+                    element = document.createElement('iframe');
+                    element.title = filename;
+                    element.loading = 'lazy';
+                    break;
+                // Add more cases for additional asset types
+                default:
+                    console.error(`Unsupported asset type: ${assetType}`);
                     return;
-                }
-
-                const extension = videoExtensions[attempt];
-                video.src = `Images/${number}.${extension}`;
-
-                // Listen for metadata loading to confirm if the video exists
-                video.onloadedmetadata = () => {
-                    videoLoaded = true;
-                };
-
-                video.onerror = () => {
-                    tryLoadVideo(attempt + 1);
-                };
             }
 
-            tryLoadVideo(0);
+            // Set the source based on the asset type
+            if (assetType === 'image' || assetType === 'document') {
+                element.src = `Images/${filename}`;
+            } else {
+                element.src = `Images/${filename}`;
+            }
 
-            div.appendChild(video);
+            // Handle loading errors by displaying a placeholder
+            element.onerror = () => {
+                const placeholder = document.createElement('div');
+                placeholder.classList.add('placeholder');
+                placeholder.setAttribute('data-alt', `${capitalizeFirstLetter(assetType)} "${filename}" not found`);
+                div.replaceChild(placeholder, element);
+            };
+
+            // Append the element to the gallery
+            div.appendChild(element);
             gallery.appendChild(div);
         }
 
-        // Insert images 1 through 142
-        for (let i = 1; i <= 142; i++) {
-            // Skip numbers 6 and 36 for videos
-            if (i === 6 || i === 36) {
-                addVideo(i);
-            } else {
-                addImage(i);
-            }
+        /**
+         * Fetches the list of asset files from the server and adds them to the gallery.
+         */
+        function loadAssets() {
+            fetch('/api/assets')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(files => {
+                    files.forEach(addAsset);
+                })
+                .catch(error => {
+                    console.error('Error fetching asset files:', error);
+                    // Optionally, display an error message to the user
+                    const errorMsg = document.createElement('p');
+                    errorMsg.textContent = 'Failed to load assets. Please try again later.';
+                    errorMsg.style.color = 'red';
+                    errorMsg.style.textAlign = 'center';
+                    gallery.appendChild(errorMsg);
+                });
         }
-    </script>
 
+        // Initialize the gallery by loading assets
+        loadAssets();
+    </script>
 </body>
 </html>
