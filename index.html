@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asset Gallery</title>
     <style>
-        /* Reset some default styles */
+        /* Reset default margins and paddings */
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
 
         body {
@@ -18,20 +18,27 @@
             padding: 20px;
         }
 
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
         .gallery {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
         }
 
         .gallery-item {
-            background-color: grey;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+            background-color: #fff;
+            border-radius: 8px;
             overflow: hidden;
-            /* Adjust the width based on screen size */
-            width: calc(100% / 2 - 20px); /* Default to 2 columns */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.05);
         }
 
         .gallery-item img,
@@ -41,129 +48,60 @@
             display: block;
         }
 
-        /* Medium devices (tablets) */
-        @media (min-width: 600px) {
-            .gallery-item {
-                width: calc(100% / 3 - 20px); /* 3 columns */
-            }
-        }
-
-        /* Large devices (desktops) */
-        @media (min-width: 900px) {
-            .gallery-item {
-                width: calc(100% / 4 - 20px); /* 4 columns */
-            }
-        }
-
-        /* Extra large devices */
-        @media (min-width: 1200px) {
-            .gallery-item {
-                width: calc(100% / 5 - 20px); /* 5 columns */
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
             }
         }
     </style>
 </head>
 <body>
 
-    <h1 style="text-align: center; margin-bottom: 20px;">Asset Gallery</h1>
-
-    <section class="gallery">
-        <!-- Assets will be inserted here by JavaScript -->
-    </section>
+    <h1>Asset Gallery</h1>
+    <div class="gallery" id="gallery">
+        <!-- Media items will be inserted here -->
+    </div>
 
     <script>
-        const gallery = document.querySelector('.gallery');
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('list_media.php')
+                .then(response => response.json())
+                .then(data => {
+                    const gallery = document.getElementById('gallery');
 
-        // List of possible image extensions
-        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
+                    // Function to create image elements
+                    data.images.forEach(src => {
+                        const div = document.createElement('div');
+                        div.classList.add('gallery-item');
 
-        /**
-         * Attempts to load an image with multiple extensions.
-         * @param {number} number - The image number.
-         * @param {number} attempt - Current attempt index.
-         * @param {HTMLElement} img - The image element.
-         */
-        function tryLoadImage(number, attempt, img) {
-            if (attempt >= imageExtensions.length) {
-                // If all attempts fail, display a placeholder or an error message
-                img.src = '/placeholder.png'; // Ensure you have a placeholder image at the root
-                img.alt = `Image ${number} not found`;
-                return;
-            }
+                        const img = document.createElement('img');
+                        img.src = src;
+                        img.alt = 'Image Asset';
 
-            const extension = imageExtensions[attempt];
-            img.src = `/${number}.${extension}`;
+                        div.appendChild(img);
+                        gallery.appendChild(div);
+                    });
 
-            img.onerror = () => {
-                tryLoadImage(number, attempt + 1, img);
-            };
-        }
+                    // Function to create video elements
+                    data.videos.forEach(src => {
+                        const div = document.createElement('div');
+                        div.classList.add('gallery-item');
 
-        // Function to create and append an image element
-        function addImage(number) {
-            const div = document.createElement('div');
-            div.classList.add('gallery-item');
+                        const video = document.createElement('video');
+                        video.src = src;
+                        video.controls = true;
 
-            const img = document.createElement('img');
-            img.alt = `Image ${number}`;
-            img.loading = 'lazy'; // Improve performance with lazy loading
-
-            // Start attempting to load the image with the first extension
-            tryLoadImage(number, 0, img);
-
-            div.appendChild(img);
-            gallery.appendChild(div);
-        }
-
-        // Function to create and append a video element
-        function addVideo(number) {
-            const div = document.createElement('div');
-            div.classList.add('gallery-item');
-
-            const video = document.createElement('video');
-            video.controls = true;
-            video.preload = 'metadata';
-
-            // List of possible video extensions
-            const videoExtensions = ['mp4', 'webm', 'ogg'];
-            let videoLoaded = false;
-
-            // Function to try loading video with different extensions
-            function tryLoadVideo(attempt) {
-                if (attempt >= videoExtensions.length) {
-                    // If all attempts fail, display a message or hide the video element
-                    div.textContent = `Video ${number} not found`;
-                    return;
-                }
-
-                const extension = videoExtensions[attempt];
-                video.src = `/${number}.${extension}`;
-
-                // Listen for metadata loading to confirm if the video exists
-                video.onloadedmetadata = () => {
-                    videoLoaded = true;
-                };
-
-                video.onerror = () => {
-                    tryLoadVideo(attempt + 1);
-                };
-            }
-
-            tryLoadVideo(0);
-
-            div.appendChild(video);
-            gallery.appendChild(div);
-        }
-
-        // Insert assets 1 through 142
-        for (let i = 1; i <= 142; i++) {
-            // Skip numbers 6 and 36 for videos
-            if (i === 6 || i === 36) {
-                addVideo(i);
-            } else {
-                addImage(i);
-            }
-        }
-    </script>   
+                        div.appendChild(video);
+                        gallery.appendChild(div);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching media:', error);
+                    const gallery = document.getElementById('gallery');
+                    gallery.innerHTML = '<p>Failed to load media.</p>';
+                });
+        });
+    </script>
 </body>
 </html>
