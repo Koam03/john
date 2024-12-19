@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asset Viewer</title>
+    <title>Asset Gallery</title>
     <style>
         /* Reset some default styles */
         * {
@@ -14,128 +15,156 @@
 
         body {
             font-family: Arial, sans-serif;
-            padding: 20px;
             background-color: #f4f4f4;
+            padding: 20px;
         }
 
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .asset-container {
+        .gallery {
             display: flex;
             flex-wrap: wrap;
+            gap: 10px;
             justify-content: center;
         }
 
-        .asset-item {
-            background-color: #fff;
+        .gallery-item {
+            background-color: grey;
             border: 1px solid #ddd;
-            border-radius: 5px;
-            margin: 10px;
-            padding: 15px;
+            border-radius: 4px;
+            overflow: hidden;
+            /* Adjust the width based on screen size */
+            width: calc(100% / 2 - 20px); /* Default to 2 columns */
+        }
+
+        .gallery-item img,
+        .gallery-item video {
             width: 100%;
-            max-width: 300px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-
-        .asset-item img, .asset-item video, .asset-item audio {
-            max-width: 100%;
             height: auto;
-            border-bottom: 1px solid #ddd;
-            margin-bottom: 10px;
+            display: block;
         }
 
-        .asset-name {
-            font-size: 1.2em;
-            color: #333;
-            word-wrap: break-word;
-        }
-
+        /* Medium devices (tablets) */
         @media (min-width: 600px) {
-            .asset-item {
-                width: 45%;
+            .gallery-item {
+                width: calc(100% / 3 - 20px); /* 3 columns */
             }
         }
 
+        /* Large devices (desktops) */
         @media (min-width: 900px) {
-            .asset-item {
-                width: 30%;
+            .gallery-item {
+                width: calc(100% / 4 - 20px); /* 4 columns */
+            }
+        }
+
+        /* Extra large devices */
+        @media (min-width: 1200px) {
+            .gallery-item {
+                width: calc(100% / 5 - 20px); /* 5 columns */
             }
         }
     </style>
 </head>
 <body>
 
-    <h1>My Assets</h1>
-    <div class="asset-container" id="assetContainer">
-        <!-- Assets will be dynamically inserted here -->
-    </div>
+    <h1 style="text-align: center; margin-bottom: 20px;">Asset Gallery</h1>
+
+    <section class="gallery">
+        <!-- Assets will be inserted here by JavaScript -->
+    </section>
 
     <script>
-        // Function to fetch the list of files from the server
-        async function fetchFiles() {
-            try {
-                const response = await fetch('list_files.php');
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
+        const gallery = document.querySelector('.gallery');
+
+        // List of possible image extensions
+        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
+
+        /**
+         * Attempts to load an image with multiple extensions.
+         * @param {number} number - The image number.
+         * @param {number} attempt - Current attempt index.
+         * @param {HTMLElement} img - The image element.
+         */
+        function tryLoadImage(number, attempt, img) {
+            if (attempt >= imageExtensions.length) {
+                // If all attempts fail, display a placeholder or an error message
+                img.src = 'placeholder.png'; // Ensure you have a placeholder image
+                img.alt = `Image ${number} not found`;
+                return;
+            }
+
+            const extension = imageExtensions[attempt];
+            img.src = `Images/${number}.${extension}`;
+
+            img.onerror = () => {
+                tryLoadImage(number, attempt + 1, img);
+            };
+        }
+
+        // Function to create and append an image element
+        function addImage(number) {
+            const div = document.createElement('div');
+            div.classList.add('gallery-item');
+
+            const img = document.createElement('img');
+            img.alt = `Image ${number}`;
+            img.loading = 'lazy'; // Improve performance with lazy loading
+
+            // Start attempting to load the image with the first extension
+            tryLoadImage(number, 0, img);
+
+            div.appendChild(img);
+            gallery.appendChild(div);
+        }
+
+        // Function to create and append a video element
+        function addVideo(number) {
+            const div = document.createElement('div');
+            div.classList.add('gallery-item');
+
+            const video = document.createElement('video');
+            video.controls = true;
+            video.preload = 'metadata';
+
+            // List of possible video extensions
+            const videoExtensions = ['mp4', 'webm', 'ogg'];
+            let videoLoaded = false;
+
+            // Function to try loading video with different extensions
+            function tryLoadVideo(attempt) {
+                if (attempt >= videoExtensions.length) {
+                    // If all attempts fail, display a message or hide the video element
+                    div.textContent = `Video ${number} not found`;
+                    return;
                 }
-                const files = await response.json();
-                displayFiles(files);
-            } catch (error) {
-                console.error('Error fetching files:', error);
-                const container = document.getElementById('assetContainer');
-                container.innerHTML = '<p>Error loading assets.</p>';
+
+                const extension = videoExtensions[attempt];
+                video.src = `Images/${number}.${extension}`;
+
+                // Listen for metadata loading to confirm if the video exists
+                video.onloadedmetadata = () => {
+                    videoLoaded = true;
+                };
+
+                video.onerror = () => {
+                    tryLoadVideo(attempt + 1);
+                };
+            }
+
+            tryLoadVideo(0);
+
+            div.appendChild(video);
+            gallery.appendChild(div);
+        }
+
+        // Insert images 1 through 142
+        for (let i = 1; i <= 142; i++) {
+            // Skip numbers 6 and 36 for videos
+            if (i === 6 || i === 36) {
+                addVideo(i);
+            } else {
+                addImage(i);
             }
         }
-
-        // Function to display the files
-        function displayFiles(files) {
-            const container = document.getElementById('assetContainer');
-            container.innerHTML = ''; // Clear any existing content
-
-            files.forEach((file, index) => {
-                const fileExtension = file.split('.').pop().toLowerCase();
-                const assetDiv = document.createElement('div');
-                assetDiv.className = 'asset-item';
-
-                let mediaElement;
-
-                // Determine the type of asset based on the file extension
-                if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg'].includes(fileExtension)) {
-                    mediaElement = document.createElement('img');
-                    mediaElement.src = file;
-                    mediaElement.alt = `Asset ${index + 1}`;
-                } else if (['mp4', 'webm', 'ogg'].includes(fileExtension)) {
-                    mediaElement = document.createElement('video');
-                    mediaElement.src = file;
-                    mediaElement.controls = true;
-                } else if (['mp3', 'wav', 'ogg'].includes(fileExtension)) {
-                    mediaElement = document.createElement('audio');
-                    mediaElement.src = file;
-                    mediaElement.controls = true;
-                } else {
-                    // For other file types, you can add icons or links
-                    mediaElement = document.createElement('a');
-                    mediaElement.href = file;
-                    mediaElement.textContent = 'Download File';
-                    mediaElement.target = '_blank';
-                }
-
-                const nameDiv = document.createElement('div');
-                nameDiv.className = 'asset-name';
-                nameDiv.textContent = `${index + 1}. ${file}`;
-
-                assetDiv.appendChild(mediaElement);
-                assetDiv.appendChild(nameDiv);
-                container.appendChild(assetDiv);
-            });
-        }
-
-        // Fetch and display files when the page loads
-        window.onload = fetchFiles;
     </script>
 
 </body>
