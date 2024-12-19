@@ -1,169 +1,49 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asset Gallery</title>
-    <style>
-        /* Reset some default styles */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            padding: 20px;
-        }
-
-        .gallery {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        .gallery-item {
-            background-color: grey;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            overflow: hidden;
-            /* Adjust the width based on screen size */
-            width: calc(100% / 2 - 20px); /* Default to 2 columns */
-        }
-
-        .gallery-item img,
-        .gallery-item video {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        /* Medium devices (tablets) */
-        @media (min-width: 600px) {
-            .gallery-item {
-                width: calc(100% / 3 - 20px); /* 3 columns */
-            }
-        }
-
-        /* Large devices (desktops) */
-        @media (min-width: 900px) {
-            .gallery-item {
-                width: calc(100% / 4 - 20px); /* 4 columns */
-            }
-        }
-
-        /* Extra large devices */
-        @media (min-width: 1200px) {
-            .gallery-item {
-                width: calc(100% / 5 - 20px); /* 5 columns */
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-    <h1 style="text-align: center; margin-bottom: 20px;">Asset Gallery</h1>
+    <h1 class="title">Asset Gallery</h1>
 
     <section class="gallery">
-        <!-- Assets will be inserted here by JavaScript -->
-    </section>
+        <?php
+            $allowedExtensions = [
+                'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp',
+                'tiff', 'tif', 'svg', 'ico', 'raw',
+                'heic', 'heif', 'psd', 'ai', 'eps', 'pdf',
+                'avif', 'jfif', 'pjpeg', 'pjp',
+                'svgz', 'dib', 'exr', 'hdr', 'cr2',
+                'nef', 'arw', 'sr2', 'dng', 'orf',
+                'raf', 'pef', 'srw', 'x3f', 'ciff',
+                'gbr', 'jxr', 'wdp', 'icns', 'pct',
+                'pic', 'rgb', 'tga', 'emf', 'wmf',
+                'ps', 'sgi', 'ras', 'pcx', 'pbm',
+                'pgm', 'ppm', 'pnm', 'bpg', 'ktx',
+                'ktx2', 'dds', 'pam', 'pgf', 'pxm',
+                'pxr', 'sun', 'xpm', 'xwd'
+            ];
 
-    <script>
-        const gallery = document.querySelector('.gallery');
-
-        // List of possible image extensions
-        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tiff', 'tif', 'svg', 'ico', 'raw', 'heic', 'heif', 'psd', 'ai', 'eps', 'pdf', 'avif', 'jfif', 'pjpeg', 'pjp', 'svgz', 'dib', 'exr', 'hdr', 'cr2', 'nef', 'arw', 'sr2', 'dng', 'orf', 'raf', 'pef', 'srw', 'x3f', 'ciff', 'gbr', 'jxr', 'wdp', 'icns', 'pct', 'pic', 'rgb', 'tga', 'emf', 'wmf', 'ps', 'sgi', 'ras', 'pcx', 'pbm', 'pgm', 'ppm', 'pnm', 'ppm', 'pnm', 'bpg', 'ktx', 'ktx2', 'dds', 'pam', 'pgf', 'pxm', 'pxr', 'ras', 'sun', 'xpm', 'xwd']
-        /**
-         * Attempts to load an image with multiple extensions.
-         * @param {number} number - The image number.
-         * @param {number} attempt - Current attempt index.
-         * @param {HTMLElement} img - The image element.
-         */
-        function tryLoadImage(number, attempt, img) {
-            if (attempt >= imageExtensions.length) {
-                // If all attempts fail, display a placeholder or an error message
-                img.src = 'placeholder.png'; // Ensure you have a placeholder image
-                img.alt = `Image ${number} not found`;
-                return;
-            }
-
-            const extension = imageExtensions[attempt];
-            img.src = `Images/${number}.${extension}`;
-
-            img.onerror = () => {
-                tryLoadImage(number, attempt + 1, img);
-            };
-        }
-
-        // Function to create and append an image element
-        function addImage(number) {
-            const div = document.createElement('div');
-            div.classList.add('gallery-item');
-
-            const img = document.createElement('img');
-            img.alt = `Image ${number}`;
-            img.loading = 'lazy'; // Improve performance with lazy loading
-
-            // Start attempting to load the image with the first extension
-            tryLoadImage(number, 0, img);
-
-            div.appendChild(img);
-            gallery.appendChild(div);
-        }
-
-        // Function to create and append a video element
-        function addVideo(number) {
-            const div = document.createElement('div');
-            div.classList.add('gallery-item');
-
-            const video = document.createElement('video');
-            video.controls = true;
-            video.preload = 'metadata';
-
-            // List of possible video extensions
-            const videoExtensions = ['mp4', 'webm', 'ogg'];
-            let videoLoaded = false;
-
-            // Function to try loading video with different extensions
-            function tryLoadVideo(attempt) {
-                if (attempt >= videoExtensions.length) {
-                    // If all attempts fail, display a message or hide the video element
-                    div.textContent = `Video ${number} not found`;
-                    return;
+            $imagesDir = 'Images';
+            if (is_dir($imagesDir)) {
+                $files = scandir($imagesDir);
+                foreach ($files as $file) {
+                    if ($file === '.' || $file === '..') continue;
+                    $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                    if (in_array($ext, $allowedExtensions)) {
+                        echo '<div class="gallery-item">';
+                        echo '<img src="' . $imagesDir . '/' . $file . '" alt="' . htmlspecialchars($file) . '" loading="lazy">';
+                        echo '</div>';
+                    }
                 }
-
-                const extension = videoExtensions[attempt];
-                video.src = `Images/${number}.${extension}`;
-
-                // Listen for metadata loading to confirm if the video exists
-                video.onloadedmetadata = () => {
-                    videoLoaded = true;
-                };
-
-                video.onerror = () => {
-                    tryLoadVideo(attempt + 1);
-                };
-            }
-
-            tryLoadVideo(0);
-
-            div.appendChild(video);
-            gallery.appendChild(div);
-        }
-
-        // Insert images 1 through 142
-        for (let i = 1; i <= 142; i++) {
-            // Skip numbers 6 and 36 for videos
-            if (i === 6 || i === 36) {
-                addVideo(i);
             } else {
-                addImage(i);
+                echo 'Images directory not found.';
             }
-        }
-    </script>
+        ?>
+    </section>
 </body>
 </html>
