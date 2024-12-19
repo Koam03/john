@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -92,7 +93,7 @@
             }
 
             const extension = imageExtensions[attempt];
-            img.src = `Images/${number}.${extension}`;
+            img.src = `${number}.${extension}`;
 
             img.onerror = () => {
                 tryLoadImage(number, attempt + 1, img);
@@ -137,7 +138,7 @@
                 }
 
                 const extension = videoExtensions[attempt];
-                video.src = `Images/${number}.${extension}`;
+                video.src = `${number}.${extension}`;
 
                 // Listen for metadata loading to confirm if the video exists
                 video.onloadedmetadata = () => {
@@ -165,6 +166,5 @@
             }
         }
     </script>
-
 </body>
 </html>
