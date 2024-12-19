@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dynamic Asset Gallery</title>
+    <style>
+        /* Basic styles for the gallery */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        #gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            padding: 20px;
+            justify-content: center;
+        }
+        .gallery-item {
+            width: 200px;
+            border: 1px solid #ccc;
+            padding: 8px;
+            box-sizing: border-box;
+            text-align: center;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .gallery-item img,
+        .gallery-item video,
+        .gallery-item audio {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        .gallery-item a {
+            display: block;
+            margin-top: 8px;
+            text-decoration: none;
+            color: #007BFF;
+            word-wrap: break-word;
+        }
+        .gallery-item a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 style="text-align: center;">Dynamic Asset Gallery</h1>
+    <div id="gallery"></div>
+
+    <script>
+        // Define the URL to fetch the asset list
+        const assetListURL = 'list_assets.php'; // Adjust the path if necessary
+
+        // Define allowed file extensions categorized by type
+        const allowedExtensions = {
+            image: ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp'],
+            video: ['mp4', 'mov', 'avi', 'mkv'],
+            audio: ['mp3', 'wav', 'ogg'],
+            document: ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'ai', 'txt'],
+            // Add more categories and extensions as needed
+        };
+
+        // Helper function to extract the file extension from a filename
+        function getFileExtension(filename) {
+            return filename.split('.').pop().toLowerCase();
+        }
+
+        // Helper function to determine the asset type based on its extension
+        function getAssetType(extension) {
+            for (const [type, extensions] of Object.entries(allowedExtensions)) {
+                if (extensions.includes(extension)) {
+                    return type;
+                }
+            }
+            return null; // Unsupported type
+        }
+
+        // Helper function to extract file name from path
+        function getFileName(path) {
+            return path.split('/').pop();
+        }
+
+        // Fetch the asset list from the server
+        async function fetchAssets() {
+            try {
+                const response = await fetch(assetListURL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                const assets = await response.json();
+                return assets;
+            } catch (error) {
+                console.error('Error fetching assets:', error);
+                return [];
+            }
+        }
+
+        const gallery = document.getElementById('gallery');
+
+        // Function to create and append gallery items
+        function loadAssets(assets) {
+            assets.forEach(asset => {
+                const item = document.createElement('div');
+                item.classList.add('gallery-item');
+
+                const extension = getFileExtension(asset.src);
+                const type = getAssetType(extension);
+
+                if (!type) {
+                    console.warn(`Unsupported file type: ${asset.src}`);
+                    return; // Skip unsupported file types
+                }
+
+                switch(type) {
+                    case 'image':
+                        const img = document.createElement('img');
+                        img.src = asset.src;
+                        img.alt = getFileName(asset.src);
+                        img.loading = 'lazy'; // Enables lazy loading
+                        item.appendChild(img);
+                        break;
+
+                    case 'video':
+                        const video = document.createElement('video');
+                        video.src = asset.src;
+                        video.controls = true;
+                        video.loading = 'lazy';
+                        video.width = 180; // Adjust as needed
+                        item.appendChild(video);
+                        break;
+
+                    case 'audio':
+                        const audio = document.createElement('audio');
+                        audio.src = asset.src;
+                        audio.controls = true;
+                        audio.loading = 'lazy';
+                        item.appendChild(audio);
+                        break;
+
+                    case 'document':
+                        const link = document.createElement('a');
+                        link.href = asset.src;
+                        link.textContent = getFileName(asset.src);
+                        link.target = '_blank';
+                        item.appendChild(link);
+                        break;
+
+                    // Add more cases if you have additional types
+                    default:
+                        console.warn(`Unhandled asset type: ${type} for file: ${asset.src}`);
+                }
+
+                gallery.appendChild(item);
+            });
+        }
+
+        // Initialize the gallery once the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', async () => {
+            const assets = await fetchAssets();
+            loadAssets(assets);
+        });
+    </script>
+
+</body>
+</html>
