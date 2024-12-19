@@ -3,47 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asset Gallery</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>My Assets</title>
+    <style>
+        body {
+            font-family: 'Press Start 2P', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom, rgb(1,32,78), rgb(2,131,147));
+            color: #fff;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px;
+            background: rgb(246,86,37);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .container {
+            display: grid;
+            gap: 10px;
+            padding: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        }
+
+        .asset {
+            border: 2px solid rgb(250,170,104);
+            border-radius: 8px;
+            overflow: hidden;
+            text-align: center;
+            background: rgb(246,220,172);
+            color: rgb(1,32,78);
+        }
+
+        .asset img, .asset video, .asset audio {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .asset p {
+            margin: 10px 0;
+            padding: 0 10px;
+            font-size: 0.8rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            background: rgb(183,0,206);
+            color: rgb(248,0,177);
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.2rem;
+            }
+
+            .container {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            }
+
+            footer {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
 </head>
 <body>
-
-    <h1 class="title">Asset Gallery</h1>
-
-    <section class="gallery">
-        <?php
-            $allowedExtensions = [
-                'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp',
-                'tiff', 'tif', 'svg', 'ico', 'raw',
-                'heic', 'heif', 'psd', 'ai', 'eps', 'pdf',
-                'avif', 'jfif', 'pjpeg', 'pjp',
-                'svgz', 'dib', 'exr', 'hdr', 'cr2',
-                'nef', 'arw', 'sr2', 'dng', 'orf',
-                'raf', 'pef', 'srw', 'x3f', 'ciff',
-                'gbr', 'jxr', 'wdp', 'icns', 'pct',
-                'pic', 'rgb', 'tga', 'emf', 'wmf',
-                'ps', 'sgi', 'ras', 'pcx', 'pbm',
-                'pgm', 'ppm', 'pnm', 'bpg', 'ktx',
-                'ktx2', 'dds', 'pam', 'pgf', 'pxm',
-                'pxr', 'sun', 'xpm', 'xwd'
+    <header>
+        <h1>My Asset Gallery</h1>
+    </header>
+    <main class="container">
+        <!-- Assets will be dynamically loaded from the directory -->
+        <script>
+            const directory = 'Images/';
+            const container = document.querySelector('.container');
+            const allowedExtensions = [
+                'jpg', 'jpeg', 'png', 'gif', 'mp4', 'webm', 'mp3', 'wav', 'aac',
+                'psd', 'ai', 'indd', 'docx', 'xlsx', 'pptx', 'gdoc', 'gsheet', 'gslides', 'txt',
+                'blend', 'svg', 'xcf', 'otf', 'ttf', 'obj', 'fbx', 'stl'
             ];
 
-            $imagesDir = 'Images';
-            if (is_dir($imagesDir)) {
-                $files = scandir($imagesDir);
-                foreach ($files as $file) {
-                    if ($file === '.' || $file === '..') continue;
-                    $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-                    if (in_array($ext, $allowedExtensions)) {
-                        echo '<div class="gallery-item">';
-                        echo '<img src="' . $imagesDir . '/' . $file . '" alt="' . htmlspecialchars($file) . '" loading="lazy">';
-                        echo '</div>';
-                    }
-                }
-            } else {
-                echo 'Images directory not found.';
-            }
-        ?>
-    </section>
+            fetch(directory) // Assuming server is set up to allow directory listing
+                .then(response => response.text())
+                .then(data => {
+                    const parser = new DOMParser();
+                    const htmlDoc = parser.parseFromString(data, 'text/html');
+                    const links = htmlDoc.querySelectorAll('a');
+
+                    links.forEach(link => {
+                        const href = link.getAttribute('href');
+                        const extension = href.split('.').pop().toLowerCase();
+
+                        if (allowedExtensions.includes(extension)) {
+                            const assetDiv = document.createElement('div');
+                            assetDiv.classList.add('asset');
+
+                            if (['jpg', 'jpeg', 'png', 'gif'].includes(extension)) {
+                                assetDiv.innerHTML = `<img src="${directory + href}" alt="${href}"><p>${href}</p>`;
+                            } else if (['mp4', 'webm'].includes(extension)) {
+                                assetDiv.innerHTML = `<video controls><source src="${directory + href}" type="video/${extension}">Your browser does not support the video tag.</video><p>${href}</p>`;
+                            } else if (['mp3', 'wav', 'aac'].includes(extension)) {
+                                assetDiv.innerHTML = `<audio controls><source src="${directory + href}" type="audio/${extension}">Your browser does not support the audio tag.</audio><p>${href}</p>`;
+                            } else {
+                                assetDiv.innerHTML = `<p>${href}</p>`;
+                            }
+
+                            container.appendChild(assetDiv);
+                        }
+                    });
+                })
+                .catch(error => console.error('Error loading assets:', error));
+        </script>
+    </main>
+    <footer>
+        <p>&copy; 2024 My Asset Gallery</p>
+    </footer>
 </body>
 </html>
