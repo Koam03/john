@@ -86,13 +86,13 @@
         function tryLoadImage(number, attempt, img) {
             if (attempt >= imageExtensions.length) {
                 // If all attempts fail, display a placeholder or an error message
-                img.src = '/Assets/Images/placeholder.png'; // Ensure you have a placeholder image in Assets/Images
+                img.src = '/placeholder.png'; // Ensure you have a placeholder image in Assets/Images
                 img.alt = `Image ${number} not found`;
                 return;
             }
 
             const extension = imageExtensions[attempt];
-            img.src = `/Assets/Images/${number}.${extension}`;
+            img.src = `/${number}.${extension}`;
 
             img.onerror = () => {
                 tryLoadImage(number, attempt + 1, img);
@@ -115,7 +115,7 @@
             }
 
             const extension = videoExtensions[attempt];
-            video.src = `/Assets/Videos/${number}.${extension}`;
+            video.src = `/${number}.${extension}`;
 
             // Listen for metadata loading to confirm if the video exists
             video.onloadedmetadata = () => {
