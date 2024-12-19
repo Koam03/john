@@ -4,7 +4,41 @@
     <meta charset="UTF-8">
     <title>Dynamic Asset Gallery</title>
     <style>
-        /* [Same CSS as previous example] */
+        /* Enhanced CSS as provided above */
+        #gallery {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .gallery-item {
+            border: 1px solid #ddd;
+            padding: 8px;
+            border-radius: 4px;
+            max-width: 200px;
+            text-align: center;
+        }
+
+        .gallery-item img,
+        .gallery-item video,
+        .gallery-item audio {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto 8px;
+        }
+
+        .gallery-item a {
+            display: block;
+            color: #0066cc;
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .gallery-item a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -13,17 +47,23 @@
     <script>
         // Define allowed file extensions categorized by type
         const allowedExtensions = {
-            image: ['jpeg', 'png', 'gif', 'tiff', 'bmp', 'webp', 'heic', 'heif', 'dng'],
-            vector: ['ai', 'eps', 'pdf', 'svg', 'cdr'],
+            image: ['jpeg', 'png', 'gif', 'tiff', 'bmp', 'webp', 'heic', 'heif', 'dng', 'jpg'],
+            vector: ['ai', 'eps', 'svg', 'pdf'],
             video: ['avi', 'wmv', 'mp4', 'flv', 'webm', 'mkv', 'avchd', 'mov', 'mpeg', 'mpg'],
             audio: ['mp3', 'aac', 'ogg', 'flac', 'wav', 'dsd', 'pcm', 'aiff', 'mp2', 'm4a', 'aif', 'aifc'],
-            graphics: ['ai', 'png', 'bmp', 'psd', 'svg', 'gif', 'jpg', 'jpeg', 'tif', 'tiff', 'pdf', 'heic', 'heif', 'dng'],
-            templates: ['psdt', 'ait', 'indt'],
+            graphics: ['psd', 'tif', 'psdt'],
+            templates: ['ait', 'indt'],
             animation: ['fla', 'xfl', 'oam'],
-            brushes: ['ai', 'abr', 'psb', 'acb'], // Common brush file extensions
+            brushes: ['abr', 'psb', 'acb'],
         };
 
-        // Helper functions [Same as previous example]
+        // Create a reverse lookup map for extensions to types
+        const extensionToTypeMap = {};
+        for (const [type, extensions] of Object.entries(allowedExtensions)) {
+            extensions.forEach(ext => {
+                extensionToTypeMap[ext] = type;
+            });
+        }
 
         function getFileExtension(filename) {
             const parts = filename.split('.');
@@ -31,12 +71,7 @@
         }
 
         function getAssetType(extension) {
-            for (const [type, extensions] of Object.entries(allowedExtensions)) {
-                if (extensions.includes(extension)) {
-                    return type;
-                }
-            }
-            return null; // Unsupported type
+            return extensionToTypeMap[extension] || null;
         }
 
         function getFileName(path) {
@@ -45,91 +80,92 @@
 
         const gallery = document.getElementById('gallery');
 
-        function loadAssets(assets) {
-            assets.forEach(asset => {
-                const item = document.createElement('div');
-                item.classList.add('gallery-item');
+        function loadAssets(categorizedAssets) {
+            for (const [type, assets] of Object.entries(categorizedAssets)) {
+                assets.forEach(asset => {
+                    const item = document.createElement('div');
+                    item.classList.add('gallery-item');
 
-                const extension = getFileExtension(asset);
-                const type = getAssetType(extension);
+                    const extension = getFileExtension(asset);
+                    const assetType = getAssetType(extension);
 
-                if (!type) {
-                    console.warn(`Unsupported file type: ${asset}`);
-                    return; // Skip unsupported file types
-                }
+                    if (!assetType) {
+                        console.warn(`Unsupported file type: ${asset}`);
+                        return;
+                    }
 
-                switch(type) {
-                    case 'image':
-                    case 'vector':
-                    case 'graphics':
-                        const img = document.createElement('img');
-                        img.src = `assets/${asset}`; // Adjust path if necessary
-                        img.alt = getFileName(asset);
-                        img.loading = 'lazy'; // Enables lazy loading
-                        img.onerror = () => {
-                            console.error(`Failed to load image: ${asset}`);
-                            img.src = 'assets/images/placeholder.png'; // Fallback image
-                        };
-                        item.appendChild(img);
-                        break;
+                    switch(assetType) {
+                        case 'image':
+                        case 'vector':
+                        case 'graphics':
+                            const img = document.createElement('img');
+                            img.src = `assets/${asset}`;
+                            img.alt = getFileName(asset);
+                            img.loading = 'lazy';
+                            img.onerror = () => {
+                                console.error(`Failed to load image: ${asset}`);
+                                img.src = 'assets/images/placeholder.png';
+                            };
+                            item.appendChild(img);
+                            break;
 
-                    case 'video':
-                        const video = document.createElement('video');
-                        video.src = `assets/${asset}`;
-                        video.controls = true;
-                        video.loading = 'lazy';
-                        video.width = 180; // Adjust as needed
-                        video.onerror = () => {
-                            console.error(`Failed to load video: ${asset}`);
-                            // Optionally display a message or fallback content
-                        };
-                        item.appendChild(video);
-                        break;
+                        case 'video':
+                            const video = document.createElement('video');
+                            video.src = `assets/${asset}`;
+                            video.controls = true;
+                            video.loading = 'lazy';
+                            video.width = 180;
+                            video.onerror = () => {
+                                console.error(`Failed to load video: ${asset}`);
+                                // Optionally, add a fallback or remove the video element
+                            };
+                            item.appendChild(video);
+                            break;
 
-                    case 'audio':
-                        const audio = document.createElement('audio');
-                        audio.src = `assets/${asset}`;
-                        audio.controls = true;
-                        audio.loading = 'lazy';
-                        audio.onerror = () => {
-                            console.error(`Failed to load audio: ${asset}`);
-                            // Optionally display a message or fallback content
-                        };
-                        item.appendChild(audio);
-                        break;
+                        case 'audio':
+                            const audio = document.createElement('audio');
+                            audio.src = `assets/${asset}`;
+                            audio.controls = true;
+                            audio.loading = 'lazy';
+                            audio.onerror = () => {
+                                console.error(`Failed to load audio: ${asset}`);
+                                // Optionally, add a fallback or remove the audio element
+                            };
+                            item.appendChild(audio);
+                            break;
 
-                    case 'document':
-                    case 'templates':
-                    case 'animation':
-                    case 'brushes':
-                        const link = document.createElement('a');
-                        link.href = `assets/${asset}`;
-                        link.textContent = getFileName(asset);
-                        link.target = '_blank';
-                        item.appendChild(link);
-                        break;
+                        case 'document':
+                        case 'templates':
+                        case 'animation':
+                        case 'brushes':
+                            const link = document.createElement('a');
+                            link.href = `assets/${asset}`;
+                            link.textContent = getFileName(asset);
+                            link.target = '_blank';
+                            item.appendChild(link);
+                            break;
 
-                    // Add more cases if you have additional types
-                    default:
-                        console.warn(`Unhandled asset type: ${type} for file: ${asset}`);
-                }
+                        default:
+                            console.warn(`Unhandled asset type: ${assetType} for file: ${asset}`);
+                    }
 
-                gallery.appendChild(item);
-            });
+                    gallery.appendChild(item);
+                });
+            }
         }
 
         // Fetch the asset list from the JSON file
         async function fetchAssets() {
             try {
-                const response = await fetch('assets/assets.json'); // Path to your JSON file
+                const response = await fetch('assets/assets.json');
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
-                const assets = await response.json();
-                return assets;
+                const categorizedAssets = await response.json();
+                return categorizedAssets;
             } catch (error) {
                 console.error('Error fetching assets:', error);
-                return [];
+                return {};
             }
         }
 
