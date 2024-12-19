@@ -11,7 +11,7 @@ $files = array();
 if ($handle = opendir($directory)) {
     while (false !== ($entry = readdir($handle))) {
         if ($entry != "." && $entry != ".." && !is_dir($entry)) {
-            $files[] = 'assets/' . $entry;
+            $files[] = '/' . $entry;
         }
     }
     closedir($handle);
