@@ -3,129 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Assets</title>
+    <title>File Fetcher</title>
     <style>
         body {
-            font-family: 'Press Start 2P', sans-serif;
-            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        .file-list {
+            margin-top: 20px;
+        }
+        .file-list ul {
+            list-style-type: none;
             padding: 0;
-            background: linear-gradient(to bottom, rgb(1,32,78), rgb(2,131,147));
-            color: #fff;
         }
-
-        header {
-            text-align: center;
-            padding: 20px;
-            background: rgb(246,86,37);
+        .file-list li {
+            margin: 5px 0;
         }
-
-        header h1 {
-            margin: 0;
-            font-size: 1.5rem;
-        }
-
         .container {
-            display: grid;
-            gap: 10px;
-            padding: 20px;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            margin-bottom: 30px;
         }
-
-        .asset {
-            border: 2px solid rgb(250,170,104);
-            border-radius: 8px;
-            overflow: hidden;
-            text-align: center;
-            background: rgb(246,220,172);
-            color: rgb(1,32,78);
-        }
-
-        .asset img, .asset video, .asset audio {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        .asset p {
-            margin: 10px 0;
-            padding: 0 10px;
-            font-size: 0.8rem;
-        }
-
-        footer {
-            text-align: center;
-            padding: 10px;
-            background: rgb(183,0,206);
-            color: rgb(248,0,177);
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-        }
-
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 1.2rem;
-            }
-
-            .container {
-                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            }
-
-            footer {
-                font-size: 0.8rem;
-            }
+        .container h2 {
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>My Asset Gallery</h1>
-    </header>
-    <main class="container">
-        <!-- Assets will be dynamically loaded from the directory -->
-        <script>
-            const directory = 'Images/';
-            const container = document.querySelector('.container');
-            const allowedExtensions = [
-                'jpg', 'jpeg', 'png', 'gif', 'mp4', 'webm', 'mp3', 'wav', 'aac',
-                'psd', 'ai', 'indd', 'docx', 'xlsx', 'pptx', 'gdoc', 'gsheet', 'gslides', 'txt',
-                'blend', 'svg', 'xcf', 'otf', 'ttf', 'obj', 'fbx', 'stl'
+    <h1>File Fetcher</h1>
+    <p>Fetching files from the following directories:</p>
+    <ul>
+        <li>Assets/Media/Images</li>
+        <li>Assets/Media/Videos</li>
+        <li>Assets/Media/Audio</li>
+    </ul>
+    <div class="file-list">
+        <div class="container" id="imagesContainer">
+            <h2>Images:</h2>
+            <ul id="imageList"></ul>
+        </div>
+        <div class="container" id="videosContainer">
+            <h2>Videos:</h2>
+            <ul id="videoList"></ul>
+        </div>
+        <div class="container" id="audioContainer">
+            <h2>Audio:</h2>
+            <ul id="audioList"></ul>
+        </div>
+    </div>
+
+    <script>
+        async function fetchFiles() {
+            const directories = [
+                "Assets/Media/Images",
+                "Assets/Media/Videos",
+                "Assets/Media/Audio"
             ];
 
-            fetch(directory) // Assuming server is set up to allow directory listing
-                .then(response => response.text())
-                .then(data => {
-                    const parser = new DOMParser();
-                    const htmlDoc = parser.parseFromString(data, 'text/html');
-                    const links = htmlDoc.querySelectorAll('a');
+            const extensions = {
+                images: ["jpg", "jpeg", "png", "gif", "bmp", "tiff", "tif", "webp", "heif", "heic", "crw", "cr2", "cr3", "nef", "nrw", "arw", "raf", "rw2", "orf", "dng", "sr2", "pef", "kdc", "mrw", "erf", "svg", "ai", "eps", "pdf", "3ds", "obj", "stl", "ico", "psd", "xcf", "exr", "pict", "pic", "pcx", "tga", "jp2", "jxl"],
+                videos: ["mp4", "mkv", "mov", "avi", "wmv", "flv", "webm", "m4v", "mpeg", "mpg", "3gp", "3g2", "f4v", "f4p", "f4a", "f4b", "vob", "mts", "m2ts", "ts", "rm", "rmvb", "asf", "divx", "ogv", "mxf", "dv", "h264", "hevc"],
+                audio: ["mp3", "wav", "aac", "flac", "ogg", "m4a", "wma", "alac", "aiff", "amr", "opus", "dsd", "pcm", "mid", "midi", "caf", "ra", "rm", "au", "snd"]
+            };
 
-                    links.forEach(link => {
-                        const href = link.getAttribute('href');
-                        const extension = href.split('.').pop().toLowerCase();
+            try {
+                const response = await fetch('/fetch-files', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ directories, extensions })
+                });
 
-                        if (allowedExtensions.includes(extension)) {
-                            const assetDiv = document.createElement('div');
-                            assetDiv.classList.add('asset');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch files');
+                }
 
-                            if (['jpg', 'jpeg', 'png', 'gif'].includes(extension)) {
-                                assetDiv.innerHTML = `<img src="${directory + href}" alt="${href}"><p>${href}</p>`;
-                            } else if (['mp4', 'webm'].includes(extension)) {
-                                assetDiv.innerHTML = `<video controls><source src="${directory + href}" type="video/${extension}">Your browser does not support the video tag.</video><p>${href}</p>`;
-                            } else if (['mp3', 'wav', 'aac'].includes(extension)) {
-                                assetDiv.innerHTML = `<audio controls><source src="${directory + href}" type="audio/${extension}">Your browser does not support the audio tag.</audio><p>${href}</p>`;
-                            } else {
-                                assetDiv.innerHTML = `<p>${href}</p>`;
-                            }
+                const files = await response.json();
+                displayFiles(files);
+            } catch (error) {
+                console.error('Error fetching files:', error);
+            }
+        }
 
-                            container.appendChild(assetDiv);
-                        }
-                    });
-                })
-                .catch(error => console.error('Error loading assets:', error));
-        </script>
-    </main>
-    <footer>
-        <p>&copy; 2024 My Asset Gallery</p>
-    </footer>
+        function displayFiles(files) {
+            const imageList = document.getElementById('imageList');
+            const videoList = document.getElementById('videoList');
+            const audioList = document.getElementById('audioList');
+
+            imageList.innerHTML = '';
+            videoList.innerHTML = '';
+            audioList.innerHTML = '';
+
+            files.images.forEach(file => {
+                const li = document.createElement('li');
+                li.textContent = file;
+                imageList.appendChild(li);
+            });
+
+            files.videos.forEach(file => {
+                const li = document.createElement('li');
+                li.textContent = file;
+                videoList.appendChild(li);
+            });
+
+            files.audio.forEach(file => {
+                const li = document.createElement('li');
+                li.textContent = file;
+                audioList.appendChild(li);
+            });
+        }
+
+        // Trigger fetch on page load
+        fetchFiles();
+    </script>
 </body>
 </html>
