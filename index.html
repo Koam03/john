@@ -5,20 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Assets</title>
     <style>
-        /* Reset and Base Styles */
-        *, *::before, *::after {
-            box-sizing: border-box;
-        }
-
         body {
             font-family: 'Press Start 2P', sans-serif;
             margin: 0;
             padding: 0;
             background: linear-gradient(to bottom, rgb(1,32,78), rgb(2,131,147));
             color: #fff;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
         }
 
         header {
@@ -37,8 +29,6 @@
             gap: 10px;
             padding: 20px;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            flex: 1;
-            overflow-y: auto;
         }
 
         .asset {
@@ -48,16 +38,6 @@
             text-align: center;
             background: rgb(246,220,172);
             color: rgb(1,32,78);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: transform 0.2s, box-shadow 0.2s;
-            cursor: pointer;
-        }
-
-        .asset:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
         .asset img, .asset video, .asset audio {
@@ -70,7 +50,6 @@
             margin: 10px 0;
             padding: 0 10px;
             font-size: 0.8rem;
-            word-break: break-all;
         }
 
         footer {
@@ -78,30 +57,9 @@
             padding: 10px;
             background: rgb(183,0,206);
             color: rgb(248,0,177);
-            position: relative;
+            position: fixed;
+            bottom: 0;
             width: 100%;
-        }
-
-        .controls {
-            text-align: center;
-            padding: 10px 20px;
-            background: rgba(0,0,0,0.1);
-        }
-
-        .controls button {
-            padding: 10px 20px;
-            font-size: 1rem;
-            border: none;
-            border-radius: 5px;
-            background-color: rgb(250,170,104);
-            color: rgb(1,32,78);
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
-        }
-
-        .controls button:hover {
-            background-color: rgb(240,160,94);
-            transform: scale(1.05);
         }
 
         @media (max-width: 768px) {
@@ -111,20 +69,10 @@
 
             .container {
                 grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-                padding: 15px;
-            }
-
-            .asset p {
-                font-size: 0.7rem;
             }
 
             footer {
                 font-size: 0.8rem;
-            }
-
-            .controls button {
-                padding: 8px 16px;
-                font-size: 0.9rem;
             }
         }
     </style>
@@ -133,137 +81,51 @@
     <header>
         <h1>My Asset Gallery</h1>
     </header>
-    
-    <!-- Removed the controls section since directory selection is no longer needed -->
-    
     <main class="container">
-        <!-- Assets will be dynamically loaded from the root directory -->
-        <p id="placeholderText">Loading assets...</p>
+        <!-- Assets will be dynamically loaded from the directory -->
+        <script>
+            const directory = '/';
+            const container = document.querySelector('.container');
+            const allowedExtensions = [
+                'jpg', 'jpeg', 'png', 'gif', 'mp4', 'webm', 'mp3', 'wav', 'aac',
+                'psd', 'ai', 'indd', 'docx', 'xlsx', 'pptx', 'gdoc', 'gsheet', 'gslides', 'txt',
+                'blend', 'svg', 'xcf', 'otf', 'ttf', 'obj', 'fbx', 'stl'
+            ];
+
+            fetch(directory) // Assuming server is set up to allow directory listing
+                .then(response => response.text())
+                .then(data => {
+                    const parser = new DOMParser();
+                    const htmlDoc = parser.parseFromString(data, 'text/html');
+                    const links = htmlDoc.querySelectorAll('a');
+
+                    links.forEach(link => {
+                        const href = link.getAttribute('href');
+                        const extension = href.split('.').pop().toLowerCase();
+
+                        if (allowedExtensions.includes(extension)) {
+                            const assetDiv = document.createElement('div');
+                            assetDiv.classList.add('asset');
+
+                            if (['jpg', 'jpeg', 'png', 'gif'].includes(extension)) {
+                                assetDiv.innerHTML = `<img src="${directory + href}" alt="${href}"><p>${href}</p>`;
+                            } else if (['mp4', 'webm'].includes(extension)) {
+                                assetDiv.innerHTML = `<video controls><source src="${directory + href}" type="video/${extension}">Your browser does not support the video tag.</video><p>${href}</p>`;
+                            } else if (['mp3', 'wav', 'aac'].includes(extension)) {
+                                assetDiv.innerHTML = `<audio controls><source src="${directory + href}" type="audio/${extension}">Your browser does not support the audio tag.</audio><p>${href}</p>`;
+                            } else {
+                                assetDiv.innerHTML = `<p>${href}</p>`;
+                            }
+
+                            container.appendChild(assetDiv);
+                        }
+                    });
+                })
+                .catch(error => console.error('Error loading assets:', error));
+        </script>
     </main>
-    
     <footer>
         <p>&copy; 2024 My Asset Gallery</p>
     </footer>
-    <script>
-        const response = await fetch('list_files.php');
-        // Allowed file extensions and their corresponding handlers
-        const allowedExtensions = {
-            images: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'tif', 'webp', 'svg', 'ai', 'psd', 'xcf', 'blend', 'obj', 'fbx', 'stl'],
-            videos: ['mp4', 'webm', 'mov', 'avi'],
-            audio: ['mp3', 'wav', 'aac'],
-            documents: ['pdf', 'docx', 'xlsx', 'pptx', 'txt'],
-            archives: ['zip', 'rar', '7z']
-        };
-
-        const container = document.querySelector('.container');
-        const placeholderText = document.getElementById('placeholderText');
-
-        // Function to get file icon based on extension
-        function getFileIcon(extension) {
-            const icons = {
-                'jpg': '📷', 'jpeg': '📷', 'png': '📷', 'gif': '📷', 'bmp': '📷', 'tiff': '📷', 'tif': '📷', 'webp': '📷',
-                'svg': '🖼️', 'ai': '🎨', 'psd': '🎨', 'xcf': '🎨', 'blend': '🎨', 'obj': '🛠️', 'fbx': '🛠️', 'stl': '🛠️',
-                'mp4': '🎬', 'webm': '🎬', 'mov': '🎬', 'avi': '🎬',
-                'mp3': '🎵', 'wav': '🎵', 'aac': '🎵',
-                'pdf': '📄', 'docx': '📄', 'xlsx': '📄', 'pptx': '📄', 'txt': '📄',
-                'zip': '📦', 'rar': '📦', '7z': '📦'
-            };
-            return icons[extension] || '📁';
-        }
-
-        // Function to display files
-        function displayFiles(files) {
-            container.innerHTML = ''; // Clear existing content
-            const fragment = document.createDocumentFragment();
-
-            if (files.length === 0) {
-                container.innerHTML = '<p>No supported files found in the root directory.</p>';
-                return;
-            }
-
-            files.forEach(fileName => {
-                const extension = fileName.split('.').pop().toLowerCase();
-                const isAllowed = Object.values(allowedExtensions).flat().includes(extension);
-                
-                if (!isAllowed) {
-                    return; // Skip unsupported files
-                }
-
-                const assetDiv = document.createElement('div');
-                assetDiv.classList.add('asset');
-                assetDiv.setAttribute('tabindex', '0'); // Make it focusable for accessibility
-
-                // Determine the relative path to the media file
-                const filePath = `/${encodeURIComponent(fileName)}`;
-
-                // Create appropriate HTML based on file type
-                let mediaElement = '';
-                if (allowedExtensions.images.includes(extension)) {
-                    mediaElement = `<img src="${filePath}" alt="${fileName}">`;
-                } else if (allowedExtensions.videos.includes(extension)) {
-                    mediaElement = `<video controls><source src="${filePath}" type="video/${extension}">Your browser does not support the video tag.</video>`;
-                } else if (allowedExtensions.audio.includes(extension)) {
-                    mediaElement = `<audio controls><source src="${filePath}" type="audio/${extension}">Your browser does not support the audio element.</audio>`;
-                } else if (allowedExtensions.documents.includes(extension)) {
-                    mediaElement = `<p>${getFileIcon(extension)} ${fileName}</p>`;
-                } else if (allowedExtensions.archives.includes(extension)) {
-                    mediaElement = `<p>${getFileIcon(extension)} ${fileName}</p>`;
-                } else {
-                    mediaElement = `<p>${getFileIcon(extension)} ${fileName}</p>`;
-                }
-
-                assetDiv.innerHTML = `
-                    ${mediaElement}
-                    <p>${fileName}</p>
-                `;
-
-                // Click event to open or download the file
-                assetDiv.addEventListener('click', () => {
-                    if (allowedExtensions.images.includes(extension) || allowedExtensions.videos.includes(extension) || allowedExtensions.audio.includes(extension)) {
-                        // For media files, open in a new tab
-                        window.open(filePath, '_blank');
-                    } else {
-                        // For documents and archives, download the file
-                        const downloadLink = document.createElement('a');
-                        downloadLink.href = filePath;
-                        downloadLink.download = fileName;
-                        document.body.appendChild(downloadLink);
-                        downloadLink.click();
-                        document.body.removeChild(downloadLink);
-                    }
-                });
-
-                // Keyboard accessibility
-                assetDiv.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        assetDiv.click();
-                    }
-                });
-
-                fragment.appendChild(assetDiv);
-            });
-
-            container.appendChild(fragment);
-            placeholderText.style.display = 'none'; // Hide placeholder
-        }
-
-        // Function to fetch the list of files from the server
-        async function fetchFiles() {
-            try {
-                const response = await fetch('list_files.php');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const files = await response.json();
-                displayFiles(files);
-            } catch (error) {
-                console.error('Error fetching files:', error);
-                container.innerHTML = '<p>Error loading files.</p>';
-            }
-        }
-
-        // Initialize the gallery on page load
-        window.addEventListener('DOMContentLoaded', fetchFiles);
-    </script>
 </body>
 </html>
