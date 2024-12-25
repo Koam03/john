@@ -3,286 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Responsive Portfolio</title>
-    <style>
-        /* Reset some default styles */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
-    background-color: #f4f4f4;
-    color: #333;
-}
-
-header {
-    background-color: #333;
-    color: #fff;
-    padding: 1rem 0;
-    text-align: center;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-}
-
-header h1 {
-    margin-bottom: 0.5rem;
-}
-
-nav {
-    position: relative;
-}
-
-nav ul {
-    list-style: none;
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-nav ul li {
-    margin: 0 1rem;
-}
-
-nav ul li a {
-    color: #fff;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-nav ul li a:hover {
-    text-decoration: underline;
-}
-
-.menu-toggle {
-    display: none;
-    flex-direction: column;
-    cursor: pointer;
-    padding: 10px;
-    position: absolute;
-    top: 50%;
-    right: 20px;
-    transform: translateY(-50%);
-}
-
-.bar {
-    height: 3px;
-    width: 25px;
-    background-color: #fff;
-    margin: 4px 0;
-    transition: 0.4s;
-}
-
-.nav-list {
-    list-style: none;
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-.nav-list li {
-    margin: 0 1rem;
-}
-
-.main {
-    padding: 2rem 1rem;
-}
-
-main {
-    padding: 2rem 1rem;
-}
-
-section {
-    margin-bottom: 3rem;
-}
-
-section h2 {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    font-size: 2rem;
-    color: #333;
-}
-
-/* Images Gallery */
-.gallery {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: center;
-}
-
-.gallery-item {
-    flex: 1 1 300px;
-    max-width: 300px;
-}
-
-.gallery-item img {
-    width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 8px;
-    transition: transform 0.3s;
-}
-
-.gallery-item img:hover {
-    transform: scale(1.05);
-}
-
-/* Audio List */
-.audio-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-.audio-item h3 {
-    margin-bottom: 0.5rem;
-    font-size: 1.2rem;
-    color: #555;
-}
-
-audio {
-    width: 100%;
-}
-
-/* Videos List */
-.video-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.video-item h3 {
-    margin-bottom: 0.5rem;
-    font-size: 1.2rem;
-    color: #555;
-}
-
-video {
-    width: 100%;
-    max-height: 450px;
-    border-radius: 8px;
-}
-
-/* Footer */
-footer {
-    background-color: #333;
-    color: #fff;
-    text-align: center;
-    padding: 1rem 0;
-}
-
-/* Responsive Styles */
-@media (max-width: 768px) {
-    .menu-toggle {
-        display: flex;
-    }
-
-    .nav-list {
-        display: none;
-        flex-direction: column;
-        width: 100%;
-        text-align: center;
-        background-color: #333;
-        position: absolute;
-        top: 60px;
-        left: 0;
-    }
-
-    .nav-list.active {
-        display: flex;
-    }
-
-    .nav-list li {
-        margin: 1rem 0;
-    }
-
-    .gallery {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .gallery-item {
-        max-width: 90%;
-    }
-}
-
-@media (max-width: 480px) {
-    header h1 {
-        font-size: 1.5rem;
-    }
-
-    section h2 {
-        font-size: 1.5rem;
-    }
-
-    .audio-item h3,
-    .video-item h3 {
-        font-size: 1rem;
-    }
-}
-
-/* Lightbox Enhancements */
-.lb-data .lb-number, .lb-data .lb-caption {
-    color: #fff;
-}
-    </style>
+    <title>John Ogletree's Portfolio</title>
+    <!-- Link to the CSS file -->
+    <link rel="stylesheet" href="styles.css">
+    <!-- Google Fonts (Optional) -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Header Section -->
     <header>
-        <h1>Your Name</h1>
-        <nav>
-            <div class="menu-toggle" id="mobile-menu">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-            </div>
-            <ul class="nav-list">
-                <li><a href="#images">Images</a></li>
-                <li><a href="#audio">Audio</a></li>
-                <li><a href="#videos">Videos</a></li>
-            </ul>
-        </nav>
+        <div class="container">
+            <h1>John Ogletree</h1>
+        </div>
     </header>
 
-    <main>
-        <!-- Images Section -->
-        <section id="images">
-            <h2>Images</h2>
-            <div class="gallery" id="gallery"></div>
-        </section>
+    <!-- Portfolio Section -->
+    <section id="portfolio">
+        <div class="container">
+            <h2>My Portfolio</h2>
+            <div class="media-grid">
+                <!-- Images -->
+                <img src="12 01 24 john Ogletree.png" alt="12 01 24 John Ogletree">
+                <img src="Golden Requiem.jpg" alt="Golden Requiem">
+                <img src="Dreamweaver.jpg" alt="Dreamweaver">
+                <img src="11 20 2023_John Ogletree_logo.png" alt="11 20 2023 John Ogletree Logo">
+                <img src="Glitchy Track Cover.jpg" alt="Glitchy Track Cover">
+                <img src="Embers Album Cover.jpg" alt="Embers Album Cover">
+                <img src="Capture Album Cover.jpg" alt="Capture Album Cover">
+                <img src="Pink Moon Track Cover.jpg" alt="Pink Moon Track Cover">
+                <img src="The Horizon Track Cover.jpg" alt="The Horizon Track Cover">
+                <img src="Underwater Album Cover.jpg" alt="Underwater Album Cover">
+                <img src="Deep End Track Cover.jpg" alt="Deep End Track Cover">
+                <img src="Land Of The Free Album Cover.jpg" alt="Land Of The Free Album Cover">
+                <img src="The End Track Cover.jpg" alt="The End Track Cover">
+                <img src="Flame Track Cover.jpg" alt="Flame Track Cover">
+                <img src="Midnight Drive Track Cover.jpg" alt="Midnight Drive Track Cover">
+                <img src="Game Over Track Cover.jpg" alt="Game Over Track Cover">
+                <img src="Broken Track Cover.jpg" alt="Broken Track Cover">
+                <img src="Darkness Trak Cover.jpg" alt="Darkness Trak Cover">
+                <img src="Lost Track Cover.jpg" alt="Lost Track Cover">
+                <img src="FirePit Track Cover.jpg" alt="FirePit Track Cover">
+                <img src="Visions Unveiled Collection Cover.webp" alt="Visions Unveiled Collection Cover">
+                <img src="Koam Profile Picture.jpg" alt="Koam Profile Picture">
+                <img src="Only Human.jpg" alt="Only Human">
+                <img src="World Of Tomorrow.jpg" alt="World Of Tomorrow">
+                <img src="Death Is Only The Beginning.jpg" alt="Death Is Only The Beginning">
+                <img src="Watch What You Say.png" alt="Watch What You Say">
+                <img src="City of Bad Dreams.png" alt="City of Bad Dreams">
+                <img src="God Bless America.jpg" alt="God Bless America">
+                <img src="Serpentine Sip.jpg" alt="Serpentine Sip">
+                <img src="Serpentine Gaze.jpg" alt="Serpentine Gaze">
+                <img src="Fallen Angel.jpg" alt="Fallen Angel">
+                <img src="Break The Code.jpg" alt="Break The Code">
+                <img src="Still And Steal.png" alt="Still And Steal">
+                <img src="Introverted Cafe.jpg" alt="Introverted Cafe">
+                <img src="Burst Photography.jpg" alt="Burst Photography">
+                <img src="The Mixo.png" alt="The Mixo">
+                <img src="Infinite X.png" alt="Infinite X">
+                <img src="Blonde Jackets.jpg" alt="Blonde Jackets">
+                <img src="Number One.jpg" alt="Number One">
+                <img src="Build The Lily.jpg" alt="Build The Lily">
+                <img src="Creative Minds.jpg" alt="Creative Minds">
+                <img src="Create Change.jpg" alt="Create Change">
+                <img src="Avon Productions.jpg" alt="Avon Productions">
+                <img src="Infernal Defeat Transcended.jpg" alt="Infernal Defeat Transcended">
+                <img src="Foundation.jpg" alt="Foundation">
+                <img src="Stay Whole.jpg" alt="Stay Whole">
+                <img src="inside the storm.jpg" alt="Inside the Storm">
+                <img src="Living Out Life Bible Study.png" alt="Living Out Life Bible Study">
+                <img src="Vust Reservations.png" alt="Vust Reservations">
+                <img src="Burst Through.png" alt="Burst Through">
 
-        <!-- Audio Section -->
-        <section id="audio">
-            <h2>Audio</h2>
-            <div class="audio-list" id="audioList"></div>
-        </section>
+                <!-- Videos -->
+                <video src="Lindsey And John Ogletree 2025.mp4" controls></video>
+                <video src="Rise Above.mp4" controls></video>
+                <video src="Unleash Your Dream.mp4" controls></video>
+            </div>
+        </div>
+    </section>
 
-        <!-- Videos Section -->
-        <section id="videos">
-            <h2>Videos</h2>
-            <div class="video-list" id="videoList"></div>
-        </section>
-    </main>
-
+    <!-- Footer -->
     <footer>
-        <p>&copy; 2024 Your Name. All rights reserved.</p>
+        <div class="container">
+            <p>&copy; 2025 John Ogletree. All rights reserved.</p>
+        </div>
     </footer>
-
-    <!-- Lightbox2 CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet">
-
-    <!-- Lightbox2 JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
-
-    <script src="/files.js"></script>
 </body>
 </html>
