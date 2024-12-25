@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     displayVideos(videosData);
     displayAudio(audioData);
     setupMobileMenu();
-    lazyLoad();
+    // lazyLoad();
 });
 
 function displayImages(files) {
