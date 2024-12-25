@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Local File Viewer</title>
+    <title>My Assets</title>
     <style>
         /* Reset and Base Styles */
         *, *::before, *::after {
@@ -11,42 +11,81 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Press Start 2P', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f0f2f5;
+            background: linear-gradient(to bottom, rgb(1,32,78), rgb(2,131,147));
+            color: #fff;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
         }
 
         header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 15px;
             text-align: center;
-            font-size: 1.5rem;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+            background: rgb(246,86,37);
         }
 
-        main {
+        header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .container {
+            display: grid;
+            gap: 10px;
+            padding: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             flex: 1;
-            width: 100%;
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 15px;
-            background-color: #fff;
+            overflow-y: auto;
+        }
+
+        .asset {
+            border: 2px solid rgb(250,170,104);
             border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+            text-align: center;
+            background: rgb(246,220,172);
+            color: rgb(1,32,78);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .asset:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .asset img, .asset video, .asset audio {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .asset p {
+            margin: 10px 0;
+            padding: 0 10px;
+            font-size: 0.8rem;
+            word-break: break-all;
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            background: rgb(183,0,206);
+            color: rgb(248,0,177);
+            position: relative;
+            width: 100%;
         }
 
         .controls {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
+            text-align: center;
+            padding: 10px 20px;
+            background: rgba(0,0,0,0.1);
         }
 
         .controls button {
@@ -54,209 +93,183 @@
             font-size: 1rem;
             border: none;
             border-radius: 5px;
-            background-color: #4CAF50;
-            color: white;
+            background-color: rgb(250,170,104);
+            color: rgb(1,32,78);
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.2s;
         }
 
         .controls button:hover {
-            background-color: #45a049;
+            background-color: rgb(240,160,94);
+            transform: scale(1.05);
         }
 
-        #fileList {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .file {
-            display: flex;
-            align-items: center;
-            padding: 12px 16px;
-            margin-bottom: 10px;
-            background-color: #fafafa;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            transition: background-color 0.3s, transform 0.2s;
-            cursor: pointer;
-        }
-
-        .file:hover {
-            background-color: #f1f1f1;
-            transform: translateY(-2px);
-        }
-
-        .file:last-child {
-            margin-bottom: 0;
-        }
-
-        .file-icon {
-            margin-right: 12px;
-            font-size: 1.5rem;
-            color: #4CAF50;
-        }
-
-        .file-name {
-            flex: 1;
-            word-break: break-all;
-            font-size: 1rem;
-            color: #333;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 600px) {
-            header {
+        @media (max-width: 768px) {
+            header h1 {
                 font-size: 1.2rem;
-                padding: 12px;
+            }
+
+            .container {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+                padding: 15px;
+            }
+
+            .asset p {
+                font-size: 0.7rem;
+            }
+
+            footer {
+                font-size: 0.8rem;
             }
 
             .controls button {
                 padding: 8px 16px;
                 font-size: 0.9rem;
             }
-
-            .file {
-                padding: 10px 14px;
-            }
-
-            .file-name {
-                font-size: 0.95rem;
-            }
-
-            main {
-                margin: 15px;
-                padding: 12px;
-            }
-        }
-
-        /* Scrollbar Styling */
-        #fileList::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        #fileList::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 4px;
-        }
-
-        #fileList::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 4px;
-        }
-
-        #fileList::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>Local File Viewer</h1>
+        <h1>My Asset Gallery</h1>
     </header>
-
-    <main>
-        <div class="controls">
-            <button id="selectDirBtn">Select Directory</button>
-        </div>
-        <div id="fileList">
-            <p>No directory selected. Please click "Select Directory" to view files.</p>
-        </div>
+    
+    <div class="controls">
+        <button id="selectDirBtn">Select Directory</button>
+    </div>
+    
+    <main class="container">
+        <!-- Assets will be dynamically loaded from the selected directory -->
+        <p id="placeholderText">No directory selected. Please click "Select Directory" to view files.</p>
     </main>
-
+    
+    <footer>
+        <p>&copy; 2024 My Asset Gallery</p>
+    </footer>
+    
     <script>
+        // Allowed file extensions and their corresponding handlers
+        const allowedExtensions = {
+            images: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'tif', 'webp', 'svg', 'ai', 'psd', 'xcf', 'blend', 'obj', 'fbx', 'stl'],
+            videos: ['mp4', 'webm', 'mov', 'avi'],
+            audio: ['mp3', 'wav', 'aac'],
+            documents: ['pdf', 'docx', 'xlsx', 'pptx', 'txt'],
+            archives: ['zip', 'rar', '7z']
+        };
+
+        const container = document.querySelector('.container');
+        const selectDirBtn = document.getElementById('selectDirBtn');
+        const placeholderText = document.getElementById('placeholderText');
+
         // Function to get file icon based on extension
-        function getFileIcon(filename) {
-            const extension = filename.split('.').pop().toLowerCase();
+        function getFileIcon(extension) {
             const icons = {
                 'jpg': '📷', 'jpeg': '📷', 'png': '📷', 'gif': '📷', 'bmp': '📷', 'tiff': '📷', 'tif': '📷', 'webp': '📷',
-                'mp4': '🎬', 'mkv': '🎬', 'mov': '🎬', 'avi': '🎬', 'wmv': '🎬', 'flv': '🎬', 'webm': '🎬',
-                'mp3': '🎵', 'wav': '🎵', 'aac': '🎵', 'flac': '🎵', 'ogg': '🎵',
-                'pdf': '📄', 'doc': '📄', 'docx': '📄', 'txt': '📄',
-                'zip': '📦', 'rar': '📦', '7z': '📦',
-                'js': '📜', 'css': '📜', 'html': '📜',
-                // Add more mappings as needed
+                'svg': '🖼️', 'ai': '🎨', 'psd': '🎨', 'xcf': '🎨', 'blend': '🎨', 'obj': '🛠️', 'fbx': '🛠️', 'stl': '🛠️',
+                'mp4': '🎬', 'webm': '🎬', 'mov': '🎬', 'avi': '🎬',
+                'mp3': '🎵', 'wav': '🎵', 'aac': '🎵',
+                'pdf': '📄', 'docx': '📄', 'xlsx': '📄', 'pptx': '📄', 'txt': '📄',
+                'zip': '📦', 'rar': '📦', '7z': '📦'
             };
             return icons[extension] || '📁';
         }
 
         // Function to display files
-        function displayFiles(files, directoryHandle) {
-            const fileListDiv = document.getElementById('fileList');
-            fileListDiv.innerHTML = '';
-
-            if (files.length === 0) {
-                fileListDiv.innerHTML = '<p>No files found in the selected directory.</p>';
-                return;
-            }
-
-            // Create a fragment to minimize reflows
+        async function displayFiles(directoryHandle) {
+            container.innerHTML = ''; // Clear existing content
             const fragment = document.createDocumentFragment();
 
-            files.forEach((fileHandle) => {
-                if (fileHandle.kind !== 'file') return; // Skip directories
-
-                const fileDiv = document.createElement('div');
-                fileDiv.classList.add('file');
-                fileDiv.setAttribute('tabindex', '0'); // Make it focusable for accessibility
-
-                // File Icon
-                const iconSpan = document.createElement('span');
-                iconSpan.classList.add('file-icon');
-                iconSpan.textContent = getFileIcon(fileHandle.name);
-                fileDiv.appendChild(iconSpan);
-
-                // File Name
-                const nameSpan = document.createElement('span');
-                nameSpan.classList.add('file-name');
-                nameSpan.textContent = fileHandle.name;
-                fileDiv.appendChild(nameSpan);
-
-                // Click event to open the file
-                fileDiv.addEventListener('click', async () => {
-                    try {
-                        const file = await fileHandle.getFile();
-                        const url = URL.createObjectURL(file);
-                        window.open(url, '_blank');
-                    } catch (error) {
-                        console.error('Error opening file:', error);
-                        alert('Failed to open the file.');
-                    }
-                });
-
-                // Keyboard accessibility
-                fileDiv.addEventListener('keypress', async (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        try {
-                            const file = await fileHandle.getFile();
-                            const url = URL.createObjectURL(file);
-                            window.open(url, '_blank');
-                        } catch (error) {
-                            console.error('Error opening file:', error);
-                            alert('Failed to open the file.');
+            let files = [];
+            try {
+                for await (const entry of directoryHandle.values()) {
+                    if (entry.kind === 'file') {
+                        const ext = entry.name.split('.').pop().toLowerCase();
+                        const isAllowed = Object.values(allowedExtensions).flat().includes(ext);
+                        if (isAllowed) {
+                            files.push(entry);
                         }
                     }
-                });
+                }
 
-                fragment.appendChild(fileDiv);
-            });
+                if (files.length === 0) {
+                    container.innerHTML = '<p>No supported files found in the selected directory.</p>';
+                    return;
+                }
 
-            fileListDiv.appendChild(fragment);
+                for (const fileHandle of files) {
+                    const file = await fileHandle.getFile();
+                    const extension = file.name.split('.').pop().toLowerCase();
+                    const assetDiv = document.createElement('div');
+                    assetDiv.classList.add('asset');
+                    assetDiv.setAttribute('tabindex', '0'); // Make it focusable for accessibility
+
+                    // Create appropriate HTML based on file type
+                    let mediaElement = '';
+                    if (allowedExtensions.images.includes(extension)) {
+                        const objectURL = URL.createObjectURL(file);
+                        mediaElement = `<img src="${objectURL}" alt="${file.name}">`;
+                    } else if (allowedExtensions.videos.includes(extension)) {
+                        const objectURL = URL.createObjectURL(file);
+                        mediaElement = `<video controls><source src="${objectURL}" type="video/${extension}">Your browser does not support the video tag.</video>`;
+                    } else if (allowedExtensions.audio.includes(extension)) {
+                        const objectURL = URL.createObjectURL(file);
+                        mediaElement = `<audio controls><source src="${objectURL}" type="audio/${extension}">Your browser does not support the audio element.</audio>`;
+                    } else if (allowedExtensions.documents.includes(extension)) {
+                        mediaElement = `<p>${getFileIcon(extension)} ${file.name}</p>`;
+                    } else if (allowedExtensions.archives.includes(extension)) {
+                        mediaElement = `<p>${getFileIcon(extension)} ${file.name}</p>`;
+                    } else {
+                        mediaElement = `<p>${getFileIcon(extension)} ${file.name}</p>`;
+                    }
+
+                    assetDiv.innerHTML = `
+                        ${mediaElement}
+                        <p>${file.name}</p>
+                    `;
+
+                    // Click event to open the file
+                    assetDiv.addEventListener('click', () => {
+                        if (allowedExtensions.images.includes(extension) || allowedExtensions.videos.includes(extension) || allowedExtensions.audio.includes(extension)) {
+                            // For media files, open in a new tab
+                            const objectURL = URL.createObjectURL(file);
+                            window.open(objectURL, '_blank');
+                        } else {
+                            // For documents and archives, download the file
+                            const downloadLink = document.createElement('a');
+                            downloadLink.href = URL.createObjectURL(file);
+                            downloadLink.download = file.name;
+                            document.body.appendChild(downloadLink);
+                            downloadLink.click();
+                            document.body.removeChild(downloadLink);
+                        }
+                    });
+
+                    // Keyboard accessibility
+                    assetDiv.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            assetDiv.click();
+                        }
+                    });
+
+                    fragment.appendChild(assetDiv);
+                }
+
+                container.appendChild(fragment);
+                placeholderText.style.display = 'none'; // Hide placeholder
+            } catch (error) {
+                console.error('Error displaying files:', error);
+                container.innerHTML = '<p>Error loading files.</p>';
+            }
         }
 
         // Function to handle directory selection
         async function selectDirectory() {
             try {
-                // @ts-ignore
+                // Prompt user to select a directory
                 const directoryHandle = await window.showDirectoryPicker();
-
-                const files = [];
-                for await (const entry of directoryHandle.values()) {
-                    if (entry.kind === 'file') {
-                        files.push(entry);
-                    }
+                if (directoryHandle) {
+                    displayFiles(directoryHandle);
                 }
-
-                displayFiles(files, directoryHandle);
             } catch (error) {
                 if (error.name !== 'AbortError') {
                     console.error('Error selecting directory:', error);
@@ -267,7 +280,14 @@
         }
 
         // Event listener for the "Select Directory" button
-        document.getElementById('selectDirBtn').addEventListener('click', selectDirectory);
+        selectDirBtn.addEventListener('click', selectDirectory);
+
+        // Initial setup: Check for File System Access API support
+        if (!window.showDirectoryPicker) {
+            alert('Your browser does not support the File System Access API. Please use a compatible browser like Google Chrome or Microsoft Edge.');
+            selectDirBtn.disabled = true;
+            selectDirBtn.textContent = 'Unsupported Browser';
+        }
     </script>
 </body>
 </html>
