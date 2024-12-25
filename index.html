@@ -3,129 +3,286 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Assets</title>
+    <title>Dynamic Responsive Portfolio</title>
     <style>
-        body {
-            font-family: 'Press Start 2P', sans-serif;
-            margin: 0;
-            padding: 0;
-            background: linear-gradient(to bottom, rgb(1,32,78), rgb(2,131,147));
-            color: #fff;
-        }
+        /* Reset some default styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        header {
-            text-align: center;
-            padding: 20px;
-            background: rgb(246,86,37);
-        }
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f4f4f4;
+    color: #333;
+}
 
-        header h1 {
-            margin: 0;
-            font-size: 1.5rem;
-        }
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 1rem 0;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
 
-        .container {
-            display: grid;
-            gap: 10px;
-            padding: 20px;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        }
+header h1 {
+    margin-bottom: 0.5rem;
+}
 
-        .asset {
-            border: 2px solid rgb(250,170,104);
-            border-radius: 8px;
-            overflow: hidden;
-            text-align: center;
-            background: rgb(246,220,172);
-            color: rgb(1,32,78);
-        }
+nav {
+    position: relative;
+}
 
-        .asset img, .asset video, .asset audio {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
+nav ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
 
-        .asset p {
-            margin: 10px 0;
-            padding: 0 10px;
-            font-size: 0.8rem;
-        }
+nav ul li {
+    margin: 0 1rem;
+}
 
-        footer {
-            text-align: center;
-            padding: 10px;
-            background: rgb(183,0,206);
-            color: rgb(248,0,177);
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-        }
+nav ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+}
 
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 1.2rem;
-            }
+nav ul li a:hover {
+    text-decoration: underline;
+}
 
-            .container {
-                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            }
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+    padding: 10px;
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+}
 
-            footer {
-                font-size: 0.8rem;
-            }
-        }
+.bar {
+    height: 3px;
+    width: 25px;
+    background-color: #fff;
+    margin: 4px 0;
+    transition: 0.4s;
+}
+
+.nav-list {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.nav-list li {
+    margin: 0 1rem;
+}
+
+.main {
+    padding: 2rem 1rem;
+}
+
+main {
+    padding: 2rem 1rem;
+}
+
+section {
+    margin-bottom: 3rem;
+}
+
+section h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+    color: #333;
+}
+
+/* Images Gallery */
+.gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.gallery-item {
+    flex: 1 1 300px;
+    max-width: 300px;
+}
+
+.gallery-item img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 8px;
+    transition: transform 0.3s;
+}
+
+.gallery-item img:hover {
+    transform: scale(1.05);
+}
+
+/* Audio List */
+.audio-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.audio-item h3 {
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+    color: #555;
+}
+
+audio {
+    width: 100%;
+}
+
+/* Videos List */
+.video-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.video-item h3 {
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+    color: #555;
+}
+
+video {
+    width: 100%;
+    max-height: 450px;
+    border-radius: 8px;
+}
+
+/* Footer */
+footer {
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    padding: 1rem 0;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: flex;
+    }
+
+    .nav-list {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        text-align: center;
+        background-color: #333;
+        position: absolute;
+        top: 60px;
+        left: 0;
+    }
+
+    .nav-list.active {
+        display: flex;
+    }
+
+    .nav-list li {
+        margin: 1rem 0;
+    }
+
+    .gallery {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .gallery-item {
+        max-width: 90%;
+    }
+}
+
+@media (max-width: 480px) {
+    header h1 {
+        font-size: 1.5rem;
+    }
+
+    section h2 {
+        font-size: 1.5rem;
+    }
+
+    .audio-item h3,
+    .video-item h3 {
+        font-size: 1rem;
+    }
+}
+
+/* Lightbox Enhancements */
+.lb-data .lb-number, .lb-data .lb-caption {
+    color: #fff;
+}
     </style>
 </head>
 <body>
     <header>
-        <h1>My Asset Gallery</h1>
+        <h1>Your Name</h1>
+        <nav>
+            <div class="menu-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+            <ul class="nav-list">
+                <li><a href="#images">Images</a></li>
+                <li><a href="#audio">Audio</a></li>
+                <li><a href="#videos">Videos</a></li>
+            </ul>
+        </nav>
     </header>
-    <main class="container">
-        <!-- Assets will be dynamically loaded from the directory -->
-        <script>
-            const directory = '/';
-            const container = document.querySelector('.container');
-            const allowedExtensions = [
-                'jpg', 'jpeg', 'png', 'gif', 'mp4', 'webm', 'mp3', 'wav', 'aac',
-                'psd', 'ai', 'indd', 'docx', 'xlsx', 'pptx', 'gdoc', 'gsheet', 'gslides', 'txt',
-                'blend', 'svg', 'xcf', 'otf', 'ttf', 'obj', 'fbx', 'stl'
-            ];
 
-            fetch(directory) // Assuming server is set up to allow directory listing
-                .then(response => response.text())
-                .then(data => {
-                    const parser = new DOMParser();
-                    const htmlDoc = parser.parseFromString(data, 'text/html');
-                    const links = htmlDoc.querySelectorAll('a');
+    <main>
+        <!-- Images Section -->
+        <section id="images">
+            <h2>Images</h2>
+            <div class="gallery" id="gallery"></div>
+        </section>
 
-                    links.forEach(link => {
-                        const href = link.getAttribute('href');
-                        const extension = href.split('.').pop().toLowerCase();
+        <!-- Audio Section -->
+        <section id="audio">
+            <h2>Audio</h2>
+            <div class="audio-list" id="audioList"></div>
+        </section>
 
-                        if (allowedExtensions.includes(extension)) {
-                            const assetDiv = document.createElement('div');
-                            assetDiv.classList.add('asset');
-
-                            if (['jpg', 'jpeg', 'png', 'gif'].includes(extension)) {
-                                assetDiv.innerHTML = `<img src="${directory + href}" alt="${href}"><p>${href}</p>`;
-                            } else if (['mp4', 'webm'].includes(extension)) {
-                                assetDiv.innerHTML = `<video controls><source src="${directory + href}" type="video/${extension}">Your browser does not support the video tag.</video><p>${href}</p>`;
-                            } else if (['mp3', 'wav', 'aac'].includes(extension)) {
-                                assetDiv.innerHTML = `<audio controls><source src="${directory + href}" type="audio/${extension}">Your browser does not support the audio tag.</audio><p>${href}</p>`;
-                            } else {
-                                assetDiv.innerHTML = `<p>${href}</p>`;
-                            }
-
-                            container.appendChild(assetDiv);
-                        }
-                    });
-                })
-                .catch(error => console.error('Error loading assets:', error));
-        </script>
+        <!-- Videos Section -->
+        <section id="videos">
+            <h2>Videos</h2>
+            <div class="video-list" id="videoList"></div>
+        </section>
     </main>
+
     <footer>
-        <p>&copy; 2024 My Asset Gallery</p>
+        <p>&copy; 2024 Your Name. All rights reserved.</p>
     </footer>
+
+    <!-- Lightbox2 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet">
+
+    <!-- Lightbox2 JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+
+    <script src="/files.js"></script>
 </body>
 </html>
