@@ -3,168 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asset Gallery</title>
+    <title>File Fetcher</title>
     <style>
-        /* Reset some default styles */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            padding: 20px;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-
-        .gallery {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
+        .file-list {
+            margin-top: 20px;
+            padding: 0 10px;
         }
-
-        .gallery-item {
-            background-color: grey;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            overflow: hidden;
-            /* Adjust the width based on screen size */
-            width: calc(100% / 2 - 20px); /* Default to 2 columns */
+        .file-list ul {
+            list-style-type: none;
+            padding: 0;
         }
-
-        .gallery-item img,
-        .gallery-item video {
-            width: 100%;
-            height: auto;
-            display: block;
+        .file-list li {
+            margin: 5px 0;
+            word-wrap: break-word;
         }
-
-        /* Medium devices (tablets) */
-        @media (min-width: 600px) {
-            .gallery-item {
-                width: calc(100% / 3 - 20px); /* 3 columns */
+        .container {
+            margin-bottom: 30px;
+        }
+        .container h2 {
+            margin-bottom: 10px;
+        }
+        @media (max-width: 768px) {
+            h1, p {
+                text-align: center;
             }
-        }
-
-        /* Large devices (desktops) */
-        @media (min-width: 900px) {
-            .gallery-item {
-                width: calc(100% / 4 - 20px); /* 4 columns */
+            .file-list {
+                margin-top: 10px;
             }
-        }
-
-        /* Extra large devices */
-        @media (min-width: 1200px) {
-            .gallery-item {
-                width: calc(100% / 5 - 20px); /* 5 columns */
+            .container h2 {
+                font-size: 1.2em;
             }
         }
     </style>
 </head>
 <body>
-
-    <h1 style="text-align: center; margin-bottom: 20px;">Asset Gallery</h1>
-
-    <section class="gallery">
-        <!-- Assets will be inserted here by JavaScript -->
-    </section>
+    <h1>File Fetcher</h1>
+    <p>Fetching files from the root directory:</p>
+    <ul>
+        <li>Root Directory</li>
+    </ul>
+    <div class="file-list">
+        <div class="container" id="imagesContainer">
+            <h2>Images:</h2>
+            <ul id="imageList"></ul>
+        </div>
+        <div class="container" id="videosContainer">
+            <h2>Videos:</h2>
+            <ul id="videoList"></ul>
+        </div>
+        <div class="container" id="audioContainer">
+            <h2>Audio:</h2>
+            <ul id="audioList"></ul>
+        </div>
+    </div>
 
     <script>
-        const gallery = document.querySelector('.gallery');
+        async function fetchFiles() {
+            const directories = [
+                "/"
+            ];
 
-        // List of possible image extensions
-        const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'];
-
-        /**
-         * Attempts to load an image with multiple extensions.
-         * @param {number} number - The image number.
-         * @param {number} attempt - Current attempt index.
-         * @param {HTMLElement} img - The image element.
-         */
-        function tryLoadImage(number, attempt, img) {
-            if (attempt >= imageExtensions.length) {
-                // If all attempts fail, display a placeholder or an error message
-                img.src = 'placeholder.png'; // Ensure you have a placeholder image
-                img.alt = `Image ${number} not found`;
-                return;
-            }
-
-            const extension = imageExtensions[attempt];
-            img.src = `Images/${number}.${extension}`;
-
-            img.onerror = () => {
-                tryLoadImage(number, attempt + 1, img);
+            const extensions = {
+                images: ["jpg", "jpeg", "png", "gif", "bmp", "tiff", "tif", "webp", "heif", "heic", "crw", "cr2", "cr3", "nef", "nrw", "arw", "raf", "rw2", "orf", "dng", "sr2", "pef", "kdc", "mrw", "erf", "svg", "ai", "eps", "pdf", "3ds", "obj", "stl", "ico", "psd", "xcf", "exr", "pict", "pic", "pcx", "tga", "jp2", "jxl"],
+                videos: ["mp4", "mkv", "mov", "avi", "wmv", "flv", "webm", "m4v", "mpeg", "mpg", "3gp", "3g2", "f4v", "f4p", "f4a", "f4b", "vob", "mts", "m2ts", "ts", "rm", "rmvb", "asf", "divx", "ogv", "mxf", "dv", "h264", "hevc"],
+                audio: ["mp3", "wav", "aac", "flac", "ogg", "m4a", "wma", "alac", "aiff", "amr", "opus", "dsd", "pcm", "mid", "midi", "caf", "ra", "rm", "au", "snd"]
             };
-        }
 
-        // Function to create and append an image element
-        function addImage(number) {
-            const div = document.createElement('div');
-            div.classList.add('gallery-item');
+            try {
+                const response = await fetch('/fetch-files', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ directories, extensions })
+                });
 
-            const img = document.createElement('img');
-            img.alt = `Image ${number}`;
-            img.loading = 'lazy'; // Improve performance with lazy loading
-
-            // Start attempting to load the image with the first extension
-            tryLoadImage(number, 0, img);
-
-            div.appendChild(img);
-            gallery.appendChild(div);
-        }
-
-        // Function to create and append a video element
-        function addVideo(number) {
-            const div = document.createElement('div');
-            div.classList.add('gallery-item');
-
-            const video = document.createElement('video');
-            video.controls = true;
-            video.preload = 'metadata';
-
-            // List of possible video extensions
-            const videoExtensions = ['mp4', 'webm', 'ogg'];
-            let videoLoaded = false;
-
-            // Function to try loading video with different extensions
-            function tryLoadVideo(attempt) {
-                if (attempt >= videoExtensions.length) {
-                    // If all attempts fail, display a message or hide the video element
-                    div.textContent = `Video ${number} not found`;
-                    return;
+                if (!response.ok) {
+                    throw new Error('Failed to fetch files');
                 }
 
-                const extension = videoExtensions[attempt];
-                video.src = `Images/${number}.${extension}`;
-
-                // Listen for metadata loading to confirm if the video exists
-                video.onloadedmetadata = () => {
-                    videoLoaded = true;
-                };
-
-                video.onerror = () => {
-                    tryLoadVideo(attempt + 1);
-                };
-            }
-
-            tryLoadVideo(0);
-
-            div.appendChild(video);
-            gallery.appendChild(div);
-        }
-
-        // Insert images 1 through 142
-        for (let i = 1; i <= 142; i++) {
-            // Skip numbers 6 and 36 for videos
-            if (i === 6 || i === 36) {
-                addVideo(i);
-            } else {
-                addImage(i);
+                const files = await response.json();
+                displayFiles(files);
+            } catch (error) {
+                console.error('Error fetching files:', error);
             }
         }
+
+        function displayFiles(files) {
+            const imageList = document.getElementById('imageList');
+            const videoList = document.getElementById('videoList');
+            const audioList = document.getElementById('audioList');
+
+            imageList.innerHTML = '';
+            videoList.innerHTML = '';
+            audioList.innerHTML = '';
+
+            files.images.forEach(file => {
+                const li = document.createElement('li');
+                li.textContent = file;
+                imageList.appendChild(li);
+            });
+
+            files.videos.forEach(file => {
+                const li = document.createElement('li');
+                li.textContent = file;
+                videoList.appendChild(li);
+            });
+
+            files.audio.forEach(file => {
+                const li = document.createElement('li');
+                li.textContent = file;
+                audioList.appendChild(li);
+            });
+        }
+
+        // Trigger fetch on page load
+        fetchFiles();
     </script>
-
 </body>
 </html>
