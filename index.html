@@ -144,8 +144,8 @@
     <footer>
         <p>&copy; 2024 My Asset Gallery</p>
     </footer>
-    
     <script>
+        const response = await fetch('list_files.php');
         // Allowed file extensions and their corresponding handlers
         const allowedExtensions = {
             images: ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'tiff', 'tif', 'webp', 'svg', 'ai', 'psd', 'xcf', 'blend', 'obj', 'fbx', 'stl'],
